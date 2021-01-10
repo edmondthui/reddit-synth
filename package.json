@@ -23,7 +23,9 @@
     "babel-preset-es2015": "^6.24.1",
     "express": "^4.15.3",
     "node-fetch": "^1.7.3",
+    "reddit-oauth-helper": "^0.3.0",
     "sass-loader": "^6.0.7",
+    "snoowrap": "^1.22.0",
     "webpack": "^3.4.1"
   },
   "devDependencies": {

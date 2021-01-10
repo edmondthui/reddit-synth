@@ -1,25 +1,35 @@
-import "./index.scss";
-const axios = require("axios");
-const requester = require("../../config/keys");
+import "./index.css";
+const snoowrap = require("snoowrap");
+const redditInfo = require("../../config/keys");
+const r = new snoowrap({
+  userAgent: redditInfo.userAgent,
+  clientId: redditInfo.clientId,
+  clientSecret: redditInfo.clientSecret,
+  refreshToken: redditInfo.refreshToken,
+});
 
 document.addEventListener("DOMContentLoaded", () => {
-  let isbn = "0201558025";
-  axios
-    .get(`/books/${isbn}`)
+  let posts = r
+    .getSubreddit("wallstreetbets")
+    .getHot()
     .then((response) => {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
+      debugger;
+      for (let i = 0; i < response.length; i++) {
+        let link = document.createElement("a");
+        let linkText = document.createTextNode(response[i].title);
+        link.appendChild(linkText);
+        link.title = response[i].title;
+        link.href = response[i].url;
+        document.body.appendChild(link);
+      }
     });
 
-  let query = "grace hopper";
-  axios
-    .get(`/search?string=${query}`)
-    .then((response) => {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+  // for (let post in posts) {
+  //   debugger;
+  //   let link = document.createElement("a");
+  //   let linkText = document.createTextNode(post.title);
+  //   link.appendChild(linkText);
+  //   link.title(post.title);
+  //   link.href(post.url);
+  //   document.body.appendChild(link);
 });
