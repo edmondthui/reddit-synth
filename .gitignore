@@ -2,3 +2,4 @@
 bundle.js
 bundle.js.map
 /config/snoo.js
+.env

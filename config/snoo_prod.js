@@ -1,7 +1,7 @@
 module.exports = {
-  userAgent: process.env.USERAGENT,
-  clientId: process.env.CLIENTID,
-  clientSecret: process.env.CLIENTSECRET,
-  username: process.env.USERNAME,
-  password: process.env.PASSWORD,
+  userAgent: process.env.USER_AGENT,
+  clientId: process.env.CLIENT_ID,
+  clientSecret: process.env.CLIENT_SECRET,
+  refreshToken: process.env.REFRESH_TOKEN,
+  accessToken: process.env.ACCESS_TOKEN,
 };
