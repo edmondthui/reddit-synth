@@ -1,7 +1,6 @@
-module.exports = {
-  userAgent: process.env.USERAGENT,
-  clientId: process.env.CLIENTID,
-  clientSecret: process.env.CLIENTSECRET,
-  refreshToken: process.env.REFRESHTOKEN,
-  accessToken: process.env.ACCESSTOKEN
+if (process.env.NODE_ENV === 'production') {
+  module.exports = require('./snoo_prod');
+} else {
+  module.exports = require('./snoo');
 }
+
