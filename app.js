@@ -3,7 +3,6 @@ const app = express();
 const path = require("path");
 const PORT = process.env.PORT || 8000; // process.env accesses heroku's environment variables
 app.use(express.static("public"));
-const redditinfo = require("./config/keys");
 
 
 app.get("/", (request, res) => {
