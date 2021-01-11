@@ -13,7 +13,6 @@ const config = {
     fs: "empty",
     // net: "empty",
   },
-  mode: "development",
 };
 
 module.exports = config;
