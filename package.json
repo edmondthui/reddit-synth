@@ -12,7 +12,8 @@
     "node": "12.13.1"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "postinstall": "webpack --mode=production"
   },
   "dependencies": {
     "axios": "^0.18.1",
