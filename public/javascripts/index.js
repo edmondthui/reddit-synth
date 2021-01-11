@@ -1,11 +1,12 @@
 import "./index.css";
 const snoowrap = require("snoowrap");
 const redditInfo = require("../../config/keys");
+
 const r = new snoowrap({
-  userAgent: redditInfo.userAgent,
-  clientId: redditInfo.clientId,
-  clientSecret: redditInfo.clientSecret,
-  refreshToken: redditInfo.refreshToken,
+  userAgent: process.env.USERAGENT,
+  clientId: process.env.CLIENTID,
+  clientSecret: process.env.CLIENTSECRET,
+  refreshToken: process.env.REFRESHTOKEN,
 });
 
 document.addEventListener("DOMContentLoaded", () => {
