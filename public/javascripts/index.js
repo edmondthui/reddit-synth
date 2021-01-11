@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
   r.getSubreddit("wallstreetbets")
     .getHot()
     .then((response) => {
-      debugger;
       for (let i = 0; i < response.length; i++) {
         let link = document.createElement("a");
         let linkText = document.createTextNode(response[i].title);
