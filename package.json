@@ -12,9 +12,8 @@
     "node": ">=8.1.0"
   },
   "scripts": {
-    "build": "webpack --watch",
-    "start": "node app.js",
-    "postinstall": "webpack --mode=production"
+    "build": "webpack",
+    "start": "node app.js"
   },
   "dependencies": {
     "axios": "^0.18.0",
