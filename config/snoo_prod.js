@@ -1,3 +1,4 @@
+console.log(process.env.USER_AGENT);
 module.exports = {
   userAgent: process.env.USER_AGENT,
   clientId: process.env.CLIENT_ID,
