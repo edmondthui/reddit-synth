@@ -13,7 +13,8 @@
   },
   "scripts": {
     "build": "webpack",
-    "start": "node app.js"
+    "start": "node app.js",
+    "postinstall": "webpack --mode=production"
   },
   "dependencies": {
     "axios": "^0.18.0",
