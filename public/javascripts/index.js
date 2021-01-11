@@ -9,6 +9,8 @@ const r = new snoowrap({
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+  console.log(r);
+  console.log(redditInfo.refreshToken);
   r.getSubreddit("wallstreetbets")
     .getHot()
     .then((response) => {
