@@ -12,7 +12,6 @@
     "node": ">=8.1.0"
   },
   "scripts": {
-    "build": "webpack --mode=production",
     "start": "node app.js"
   },
   "dependencies": {
