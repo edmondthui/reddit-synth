@@ -12,11 +12,9 @@
     "node": ">=8.1.0"
   },
   "scripts": {
-    "build": "webpack",
+    "build": "webpack --mode=production",
     "start": "node app.js",
-    "postinstall": "webpack --mode=production"
   },
-  "heroku-run-build-script": false,
   "dependencies": {
     "axios": "^0.18.0",
     "babel-core": "^6.26.0",
