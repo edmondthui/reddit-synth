@@ -9,8 +9,7 @@ const r = new snoowrap({
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  let posts = r
-    .getSubreddit("wallstreetbets")
+  r.getSubreddit("wallstreetbets")
     .getHot()
     .then((response) => {
       debugger;
