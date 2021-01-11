@@ -1,11 +1,11 @@
-import "./index.css";
+const keys = require("../../config/keys");
 const snoowrap = require("snoowrap");
-const redditInfo = require("../../config/keys");
+
 const r = new snoowrap({
-  userAgent: redditInfo.userAgent,
-  clientId: redditInfo.clientId,
-  clientSecret: redditInfo.clientSecret,
-  refreshToken: redditInfo.refreshToken,
+  userAgent: keys.userAgent,
+  clientId: keys.clientId,
+  clientSecret: keys.clientSecret,
+  refreshToken: keys.refreshToken,
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -21,13 +21,4 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.appendChild(link);
       }
     });
-
-  // for (let post in posts) {
-  //   debugger;
-  //   let link = document.createElement("a");
-  //   let linkText = document.createTextNode(post.title);
-  //   link.appendChild(linkText);
-  //   link.title(post.title);
-  //   link.href(post.url);
-  //   document.body.appendChild(link);
 });
