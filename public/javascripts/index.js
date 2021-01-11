@@ -6,6 +6,7 @@ const r = new snoowrap({
   clientId: redditInfo.clientId,
   clientSecret: redditInfo.clientSecret,
   refreshToken: redditInfo.refreshToken,
+  accessToken: redditInfo.accessToken,
 });
 
 document.addEventListener("DOMContentLoaded", () => {
