@@ -12,7 +12,7 @@
     "node": "12.13.1"
   },
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "nodemon server.js"
   },
   "dependencies": {
     "axios": "^0.18.1",
