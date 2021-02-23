@@ -8,7 +8,6 @@ Simple Node Backend for avoiding CORS issues in development
 Technologies
 - express
 - axios
-- webpack
 
 Implementation
 
