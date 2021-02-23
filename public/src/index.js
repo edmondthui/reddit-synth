@@ -1,6 +1,5 @@
 const keys = require("../../config/keys");
 const snoowrap = require("snoowrap");
-console.log(keys);
 const r = new snoowrap({
   userAgent: keys.userAgent,
   clientId: keys.clientId,
