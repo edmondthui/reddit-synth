@@ -25,9 +25,7 @@
     "express": "^4.17.1",
     "node-fetch": "^1.7.3",
     "reddit-oauth-helper": "^0.3.0",
-    "snoowrap": "^1.22.0",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^4.3.1"
+    "snoowrap": "^1.22.0"
   },
   "devDependencies": {
     "nodemon": "^1.19.4"
