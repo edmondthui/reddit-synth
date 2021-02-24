@@ -13,7 +13,7 @@
   },
   "scripts": {
     "start": "nodemon app.js",
-    "bundle": "browserify public/src/index.js -o public/bundle.js"
+    "heroku-postbuild": "browserify public/src/index.js -o public/bundle.js"
   },
   "dependencies": {
     "axios": "^0.18.1",
