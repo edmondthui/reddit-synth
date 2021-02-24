@@ -1,20 +1,16 @@
-# Simple Node API Backend
+# Reddit Synth
 
-Simple Node Backend for avoiding CORS issues in development
-- npm install
-- npm run build
-- npm start
+Webapp that pulls posts and reads them from reddit.
 
-Technologies
-- express
-- axios
+## Technologies
+* express
+* axios
+* browserify
+* JavaScript
+* HTML / CSS
 
-Implementation
+## Features:
+* Pulls posts from a Reddit subreddit.
 
-This project allows you to serve your HTML and JS from a custom backend that performs API requests to an external API.
+[Live Demo](https://reddit-synth.herokuapp.com/)  
 
-app.js contains the routes that you need to get your data. Customize them according to the paths you wish to use in your code, and the API you wish to access
-
-Write your JS in the javascripts folder; your entry file is index.js.
-
-In the entry file 
