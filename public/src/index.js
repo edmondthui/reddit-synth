@@ -107,3 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
   speakButton.addEventListener("click", toggle);
   stopButton.addEventListener("click", () => toggle(false));
 });
+
+
+//browserify public/src/index.js -o public/bundle.js

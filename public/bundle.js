@@ -40421,7 +40421,7 @@ module.exports = function rawRequest(options) {
 require("dotenv").config();
 //use the .env file to load the snoowrap stuff instead of requiring keys
 
-const keys = require("../../config/keys.js");
+const keys = require("../../config/keys");
 const snoowrap = require("snoowrap");
 const r = new snoowrap({
   userAgent: keys.userAgent,
@@ -40518,6 +40518,7 @@ function getSubreddit(e) {
     .catch((error) => {
       console.log(error);
     });
+  e.target[0].value = "";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -40527,4 +40528,6 @@ document.addEventListener("DOMContentLoaded", () => {
   stopButton.addEventListener("click", () => toggle(false));
 });
 
-},{"../../config/keys.js":35,"dotenv":39,"snoowrap":63}]},{},[66]);
+
+//browserify public/src/index.js -o public/bundle.js
+},{"../../config/keys":35,"dotenv":39,"snoowrap":63}]},{},[66]);
