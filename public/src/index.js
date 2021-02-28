@@ -20,8 +20,8 @@ async function fetchComments(response) {
   // for (let i = 0; i < content.comments.length; i++) {
   //   console.log(content.comments[i].body);
   // }
+  clearThreads();
 
-  clearScreen();
   let comments = document.createElement("div");
   comments.classList.add("comments");
   document.body.appendChild(comments);
@@ -29,10 +29,10 @@ async function fetchComments(response) {
   appendComments(content);
 }
 
-function clearScreen() {
-  let body = document.getElementsByTagName("BODY")[0];
-  while (body.firstChild) {
-    body.removeChild(body.lastChild);
+function clearThreads() {
+  let threads = document.querySelector(".threads");
+  while (threads.firstChild) {
+    threads.removeChild(threads.lastChild);
   }
 }
 
@@ -46,9 +46,10 @@ function appendComments(content) {
 }
 
 function setupVoice() {
+  let nav = document.querySelector(".nav");
   let selectList = document.createElement("select");
   selectList.name = "voices";
-  document.body.appendChild(selectList);
+  nav.appendChild(selectList);
 
   const voicesDropdown = document.querySelector('[name="voices"]');
   voices = this.getVoices();
@@ -76,8 +77,11 @@ function toggle(startOver = true) {
 
 function getSubreddit(e) {
   e.preventDefault();
-
-  r.getSubreddit(e.currentTarget.value)
+  let threads = document.querySelector(".threads");
+  while (threads.firstChild) {
+    threads.removeChild(threads.lastChild);
+  }
+  r.getSubreddit(e.target[0].value)
     .getHot()
     .then((response) => {
       for (let i = 0; i < response.length; i++) {
@@ -86,9 +90,9 @@ function getSubreddit(e) {
         let linkText = document.createTextNode(response[i].title);
         link.appendChild(linkText);
         link.title = response[i].title;
-        document.body.appendChild(link);
+        threads.appendChild(link);
         link.addEventListener("click", () => fetchComments(response[i]));
-        document.body.appendChild(linebreak);
+        threads.appendChild(linebreak);
       }
     })
     .catch((error) => {
@@ -98,7 +102,7 @@ function getSubreddit(e) {
 
 document.addEventListener("DOMContentLoaded", () => {
   let subreddit = document.querySelector(".subreddit");
-  subreddit.addEventListener("submit", getSubreddit(e));
+  subreddit.addEventListener("submit", (e) => getSubreddit(e));
   speakButton.addEventListener("click", toggle);
   stopButton.addEventListener("click", () => toggle(false));
 });

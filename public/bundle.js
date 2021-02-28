@@ -1,4 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+
+},{}],2:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -150,9 +152,9 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],2:[function(require,module,exports){
-
 },{}],3:[function(require,module,exports){
+arguments[4][1][0].apply(exports,arguments)
+},{"dup":1}],4:[function(require,module,exports){
 (function (Buffer){(function (){
 /*!
  * The buffer module from node.js, for the browser.
@@ -1933,7 +1935,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"base64-js":1,"buffer":3,"ieee754":5}],4:[function(require,module,exports){
+},{"base64-js":2,"buffer":4,"ieee754":6}],5:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2411,7 +2413,7 @@ function once(emitter, name) {
   });
 }
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
@@ -2498,7 +2500,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -2527,7 +2529,540 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
+(function (process){(function (){
+// 'path' module extracted from Node.js v8.11.1 (only the posix part)
+// transplited with Babel
+
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'use strict';
+
+function assertPath(path) {
+  if (typeof path !== 'string') {
+    throw new TypeError('Path must be a string. Received ' + JSON.stringify(path));
+  }
+}
+
+// Resolves . and .. elements in a path with directory names
+function normalizeStringPosix(path, allowAboveRoot) {
+  var res = '';
+  var lastSegmentLength = 0;
+  var lastSlash = -1;
+  var dots = 0;
+  var code;
+  for (var i = 0; i <= path.length; ++i) {
+    if (i < path.length)
+      code = path.charCodeAt(i);
+    else if (code === 47 /*/*/)
+      break;
+    else
+      code = 47 /*/*/;
+    if (code === 47 /*/*/) {
+      if (lastSlash === i - 1 || dots === 1) {
+        // NOOP
+      } else if (lastSlash !== i - 1 && dots === 2) {
+        if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== 46 /*.*/ || res.charCodeAt(res.length - 2) !== 46 /*.*/) {
+          if (res.length > 2) {
+            var lastSlashIndex = res.lastIndexOf('/');
+            if (lastSlashIndex !== res.length - 1) {
+              if (lastSlashIndex === -1) {
+                res = '';
+                lastSegmentLength = 0;
+              } else {
+                res = res.slice(0, lastSlashIndex);
+                lastSegmentLength = res.length - 1 - res.lastIndexOf('/');
+              }
+              lastSlash = i;
+              dots = 0;
+              continue;
+            }
+          } else if (res.length === 2 || res.length === 1) {
+            res = '';
+            lastSegmentLength = 0;
+            lastSlash = i;
+            dots = 0;
+            continue;
+          }
+        }
+        if (allowAboveRoot) {
+          if (res.length > 0)
+            res += '/..';
+          else
+            res = '..';
+          lastSegmentLength = 2;
+        }
+      } else {
+        if (res.length > 0)
+          res += '/' + path.slice(lastSlash + 1, i);
+        else
+          res = path.slice(lastSlash + 1, i);
+        lastSegmentLength = i - lastSlash - 1;
+      }
+      lastSlash = i;
+      dots = 0;
+    } else if (code === 46 /*.*/ && dots !== -1) {
+      ++dots;
+    } else {
+      dots = -1;
+    }
+  }
+  return res;
+}
+
+function _format(sep, pathObject) {
+  var dir = pathObject.dir || pathObject.root;
+  var base = pathObject.base || (pathObject.name || '') + (pathObject.ext || '');
+  if (!dir) {
+    return base;
+  }
+  if (dir === pathObject.root) {
+    return dir + base;
+  }
+  return dir + sep + base;
+}
+
+var posix = {
+  // path.resolve([from ...], to)
+  resolve: function resolve() {
+    var resolvedPath = '';
+    var resolvedAbsolute = false;
+    var cwd;
+
+    for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+      var path;
+      if (i >= 0)
+        path = arguments[i];
+      else {
+        if (cwd === undefined)
+          cwd = process.cwd();
+        path = cwd;
+      }
+
+      assertPath(path);
+
+      // Skip empty entries
+      if (path.length === 0) {
+        continue;
+      }
+
+      resolvedPath = path + '/' + resolvedPath;
+      resolvedAbsolute = path.charCodeAt(0) === 47 /*/*/;
+    }
+
+    // At this point the path should be resolved to a full absolute path, but
+    // handle relative paths to be safe (might happen when process.cwd() fails)
+
+    // Normalize the path
+    resolvedPath = normalizeStringPosix(resolvedPath, !resolvedAbsolute);
+
+    if (resolvedAbsolute) {
+      if (resolvedPath.length > 0)
+        return '/' + resolvedPath;
+      else
+        return '/';
+    } else if (resolvedPath.length > 0) {
+      return resolvedPath;
+    } else {
+      return '.';
+    }
+  },
+
+  normalize: function normalize(path) {
+    assertPath(path);
+
+    if (path.length === 0) return '.';
+
+    var isAbsolute = path.charCodeAt(0) === 47 /*/*/;
+    var trailingSeparator = path.charCodeAt(path.length - 1) === 47 /*/*/;
+
+    // Normalize the path
+    path = normalizeStringPosix(path, !isAbsolute);
+
+    if (path.length === 0 && !isAbsolute) path = '.';
+    if (path.length > 0 && trailingSeparator) path += '/';
+
+    if (isAbsolute) return '/' + path;
+    return path;
+  },
+
+  isAbsolute: function isAbsolute(path) {
+    assertPath(path);
+    return path.length > 0 && path.charCodeAt(0) === 47 /*/*/;
+  },
+
+  join: function join() {
+    if (arguments.length === 0)
+      return '.';
+    var joined;
+    for (var i = 0; i < arguments.length; ++i) {
+      var arg = arguments[i];
+      assertPath(arg);
+      if (arg.length > 0) {
+        if (joined === undefined)
+          joined = arg;
+        else
+          joined += '/' + arg;
+      }
+    }
+    if (joined === undefined)
+      return '.';
+    return posix.normalize(joined);
+  },
+
+  relative: function relative(from, to) {
+    assertPath(from);
+    assertPath(to);
+
+    if (from === to) return '';
+
+    from = posix.resolve(from);
+    to = posix.resolve(to);
+
+    if (from === to) return '';
+
+    // Trim any leading backslashes
+    var fromStart = 1;
+    for (; fromStart < from.length; ++fromStart) {
+      if (from.charCodeAt(fromStart) !== 47 /*/*/)
+        break;
+    }
+    var fromEnd = from.length;
+    var fromLen = fromEnd - fromStart;
+
+    // Trim any leading backslashes
+    var toStart = 1;
+    for (; toStart < to.length; ++toStart) {
+      if (to.charCodeAt(toStart) !== 47 /*/*/)
+        break;
+    }
+    var toEnd = to.length;
+    var toLen = toEnd - toStart;
+
+    // Compare paths to find the longest common path from root
+    var length = fromLen < toLen ? fromLen : toLen;
+    var lastCommonSep = -1;
+    var i = 0;
+    for (; i <= length; ++i) {
+      if (i === length) {
+        if (toLen > length) {
+          if (to.charCodeAt(toStart + i) === 47 /*/*/) {
+            // We get here if `from` is the exact base path for `to`.
+            // For example: from='/foo/bar'; to='/foo/bar/baz'
+            return to.slice(toStart + i + 1);
+          } else if (i === 0) {
+            // We get here if `from` is the root
+            // For example: from='/'; to='/foo'
+            return to.slice(toStart + i);
+          }
+        } else if (fromLen > length) {
+          if (from.charCodeAt(fromStart + i) === 47 /*/*/) {
+            // We get here if `to` is the exact base path for `from`.
+            // For example: from='/foo/bar/baz'; to='/foo/bar'
+            lastCommonSep = i;
+          } else if (i === 0) {
+            // We get here if `to` is the root.
+            // For example: from='/foo'; to='/'
+            lastCommonSep = 0;
+          }
+        }
+        break;
+      }
+      var fromCode = from.charCodeAt(fromStart + i);
+      var toCode = to.charCodeAt(toStart + i);
+      if (fromCode !== toCode)
+        break;
+      else if (fromCode === 47 /*/*/)
+        lastCommonSep = i;
+    }
+
+    var out = '';
+    // Generate the relative path based on the path difference between `to`
+    // and `from`
+    for (i = fromStart + lastCommonSep + 1; i <= fromEnd; ++i) {
+      if (i === fromEnd || from.charCodeAt(i) === 47 /*/*/) {
+        if (out.length === 0)
+          out += '..';
+        else
+          out += '/..';
+      }
+    }
+
+    // Lastly, append the rest of the destination (`to`) path that comes after
+    // the common path parts
+    if (out.length > 0)
+      return out + to.slice(toStart + lastCommonSep);
+    else {
+      toStart += lastCommonSep;
+      if (to.charCodeAt(toStart) === 47 /*/*/)
+        ++toStart;
+      return to.slice(toStart);
+    }
+  },
+
+  _makeLong: function _makeLong(path) {
+    return path;
+  },
+
+  dirname: function dirname(path) {
+    assertPath(path);
+    if (path.length === 0) return '.';
+    var code = path.charCodeAt(0);
+    var hasRoot = code === 47 /*/*/;
+    var end = -1;
+    var matchedSlash = true;
+    for (var i = path.length - 1; i >= 1; --i) {
+      code = path.charCodeAt(i);
+      if (code === 47 /*/*/) {
+          if (!matchedSlash) {
+            end = i;
+            break;
+          }
+        } else {
+        // We saw the first non-path separator
+        matchedSlash = false;
+      }
+    }
+
+    if (end === -1) return hasRoot ? '/' : '.';
+    if (hasRoot && end === 1) return '//';
+    return path.slice(0, end);
+  },
+
+  basename: function basename(path, ext) {
+    if (ext !== undefined && typeof ext !== 'string') throw new TypeError('"ext" argument must be a string');
+    assertPath(path);
+
+    var start = 0;
+    var end = -1;
+    var matchedSlash = true;
+    var i;
+
+    if (ext !== undefined && ext.length > 0 && ext.length <= path.length) {
+      if (ext.length === path.length && ext === path) return '';
+      var extIdx = ext.length - 1;
+      var firstNonSlashEnd = -1;
+      for (i = path.length - 1; i >= 0; --i) {
+        var code = path.charCodeAt(i);
+        if (code === 47 /*/*/) {
+            // If we reached a path separator that was not part of a set of path
+            // separators at the end of the string, stop now
+            if (!matchedSlash) {
+              start = i + 1;
+              break;
+            }
+          } else {
+          if (firstNonSlashEnd === -1) {
+            // We saw the first non-path separator, remember this index in case
+            // we need it if the extension ends up not matching
+            matchedSlash = false;
+            firstNonSlashEnd = i + 1;
+          }
+          if (extIdx >= 0) {
+            // Try to match the explicit extension
+            if (code === ext.charCodeAt(extIdx)) {
+              if (--extIdx === -1) {
+                // We matched the extension, so mark this as the end of our path
+                // component
+                end = i;
+              }
+            } else {
+              // Extension does not match, so our result is the entire path
+              // component
+              extIdx = -1;
+              end = firstNonSlashEnd;
+            }
+          }
+        }
+      }
+
+      if (start === end) end = firstNonSlashEnd;else if (end === -1) end = path.length;
+      return path.slice(start, end);
+    } else {
+      for (i = path.length - 1; i >= 0; --i) {
+        if (path.charCodeAt(i) === 47 /*/*/) {
+            // If we reached a path separator that was not part of a set of path
+            // separators at the end of the string, stop now
+            if (!matchedSlash) {
+              start = i + 1;
+              break;
+            }
+          } else if (end === -1) {
+          // We saw the first non-path separator, mark this as the end of our
+          // path component
+          matchedSlash = false;
+          end = i + 1;
+        }
+      }
+
+      if (end === -1) return '';
+      return path.slice(start, end);
+    }
+  },
+
+  extname: function extname(path) {
+    assertPath(path);
+    var startDot = -1;
+    var startPart = 0;
+    var end = -1;
+    var matchedSlash = true;
+    // Track the state of characters (if any) we see before our first dot and
+    // after any path separator we find
+    var preDotState = 0;
+    for (var i = path.length - 1; i >= 0; --i) {
+      var code = path.charCodeAt(i);
+      if (code === 47 /*/*/) {
+          // If we reached a path separator that was not part of a set of path
+          // separators at the end of the string, stop now
+          if (!matchedSlash) {
+            startPart = i + 1;
+            break;
+          }
+          continue;
+        }
+      if (end === -1) {
+        // We saw the first non-path separator, mark this as the end of our
+        // extension
+        matchedSlash = false;
+        end = i + 1;
+      }
+      if (code === 46 /*.*/) {
+          // If this is our first dot, mark it as the start of our extension
+          if (startDot === -1)
+            startDot = i;
+          else if (preDotState !== 1)
+            preDotState = 1;
+      } else if (startDot !== -1) {
+        // We saw a non-dot and non-path separator before our dot, so we should
+        // have a good chance at having a non-empty extension
+        preDotState = -1;
+      }
+    }
+
+    if (startDot === -1 || end === -1 ||
+        // We saw a non-dot character immediately before the dot
+        preDotState === 0 ||
+        // The (right-most) trimmed path component is exactly '..'
+        preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+      return '';
+    }
+    return path.slice(startDot, end);
+  },
+
+  format: function format(pathObject) {
+    if (pathObject === null || typeof pathObject !== 'object') {
+      throw new TypeError('The "pathObject" argument must be of type Object. Received type ' + typeof pathObject);
+    }
+    return _format('/', pathObject);
+  },
+
+  parse: function parse(path) {
+    assertPath(path);
+
+    var ret = { root: '', dir: '', base: '', ext: '', name: '' };
+    if (path.length === 0) return ret;
+    var code = path.charCodeAt(0);
+    var isAbsolute = code === 47 /*/*/;
+    var start;
+    if (isAbsolute) {
+      ret.root = '/';
+      start = 1;
+    } else {
+      start = 0;
+    }
+    var startDot = -1;
+    var startPart = 0;
+    var end = -1;
+    var matchedSlash = true;
+    var i = path.length - 1;
+
+    // Track the state of characters (if any) we see before our first dot and
+    // after any path separator we find
+    var preDotState = 0;
+
+    // Get non-dir info
+    for (; i >= start; --i) {
+      code = path.charCodeAt(i);
+      if (code === 47 /*/*/) {
+          // If we reached a path separator that was not part of a set of path
+          // separators at the end of the string, stop now
+          if (!matchedSlash) {
+            startPart = i + 1;
+            break;
+          }
+          continue;
+        }
+      if (end === -1) {
+        // We saw the first non-path separator, mark this as the end of our
+        // extension
+        matchedSlash = false;
+        end = i + 1;
+      }
+      if (code === 46 /*.*/) {
+          // If this is our first dot, mark it as the start of our extension
+          if (startDot === -1) startDot = i;else if (preDotState !== 1) preDotState = 1;
+        } else if (startDot !== -1) {
+        // We saw a non-dot and non-path separator before our dot, so we should
+        // have a good chance at having a non-empty extension
+        preDotState = -1;
+      }
+    }
+
+    if (startDot === -1 || end === -1 ||
+    // We saw a non-dot character immediately before the dot
+    preDotState === 0 ||
+    // The (right-most) trimmed path component is exactly '..'
+    preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+      if (end !== -1) {
+        if (startPart === 0 && isAbsolute) ret.base = ret.name = path.slice(1, end);else ret.base = ret.name = path.slice(startPart, end);
+      }
+    } else {
+      if (startPart === 0 && isAbsolute) {
+        ret.name = path.slice(1, startDot);
+        ret.base = path.slice(1, end);
+      } else {
+        ret.name = path.slice(startPart, startDot);
+        ret.base = path.slice(startPart, end);
+      }
+      ret.ext = path.slice(startDot, end);
+    }
+
+    if (startPart > 0) ret.dir = path.slice(0, startPart - 1);else if (isAbsolute) ret.dir = '/';
+
+    return ret;
+  },
+
+  sep: '/',
+  delimiter: ':',
+  win32: null,
+  posix: null
+};
+
+posix.posix = posix;
+
+module.exports = posix;
+
+}).call(this)}).call(this,require('_process'))
+},{"_process":9}],9:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -2713,7 +3248,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 (function (global){(function (){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -3250,7 +3785,7 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3336,7 +3871,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3423,13 +3958,13 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":9,"./encode":10}],12:[function(require,module,exports){
+},{"./decode":11,"./encode":12}],14:[function(require,module,exports){
 /*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
@@ -3496,7 +4031,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":3}],13:[function(require,module,exports){
+},{"buffer":4}],15:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3627,7 +4162,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":4,"inherits":6,"readable-stream/lib/_stream_duplex.js":15,"readable-stream/lib/_stream_passthrough.js":16,"readable-stream/lib/_stream_readable.js":17,"readable-stream/lib/_stream_transform.js":18,"readable-stream/lib/_stream_writable.js":19,"readable-stream/lib/internal/streams/end-of-stream.js":23,"readable-stream/lib/internal/streams/pipeline.js":25}],14:[function(require,module,exports){
+},{"events":5,"inherits":7,"readable-stream/lib/_stream_duplex.js":17,"readable-stream/lib/_stream_passthrough.js":18,"readable-stream/lib/_stream_readable.js":19,"readable-stream/lib/_stream_transform.js":20,"readable-stream/lib/_stream_writable.js":21,"readable-stream/lib/internal/streams/end-of-stream.js":25,"readable-stream/lib/internal/streams/pipeline.js":27}],16:[function(require,module,exports){
 'use strict';
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; subClass.__proto__ = superClass; }
@@ -3756,7 +4291,7 @@ createErrorType('ERR_UNKNOWN_ENCODING', function (arg) {
 createErrorType('ERR_STREAM_UNSHIFT_AFTER_END_EVENT', 'stream.unshift() after end event');
 module.exports.codes = codes;
 
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 (function (process){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -3898,7 +4433,7 @@ Object.defineProperty(Duplex.prototype, 'destroyed', {
   }
 });
 }).call(this)}).call(this,require('_process'))
-},{"./_stream_readable":17,"./_stream_writable":19,"_process":7,"inherits":6}],16:[function(require,module,exports){
+},{"./_stream_readable":19,"./_stream_writable":21,"_process":9,"inherits":7}],18:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3938,7 +4473,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":18,"inherits":6}],17:[function(require,module,exports){
+},{"./_stream_transform":20,"inherits":7}],19:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -5065,7 +5600,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":14,"./_stream_duplex":15,"./internal/streams/async_iterator":20,"./internal/streams/buffer_list":21,"./internal/streams/destroy":22,"./internal/streams/from":24,"./internal/streams/state":26,"./internal/streams/stream":27,"_process":7,"buffer":3,"events":4,"inherits":6,"string_decoder/":28,"util":2}],18:[function(require,module,exports){
+},{"../errors":16,"./_stream_duplex":17,"./internal/streams/async_iterator":22,"./internal/streams/buffer_list":23,"./internal/streams/destroy":24,"./internal/streams/from":26,"./internal/streams/state":28,"./internal/streams/stream":29,"_process":9,"buffer":4,"events":5,"inherits":7,"string_decoder/":30,"util":3}],20:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5267,7 +5802,7 @@ function done(stream, er, data) {
   if (stream._transformState.transforming) throw new ERR_TRANSFORM_ALREADY_TRANSFORMING();
   return stream.push(null);
 }
-},{"../errors":14,"./_stream_duplex":15,"inherits":6}],19:[function(require,module,exports){
+},{"../errors":16,"./_stream_duplex":17,"inherits":7}],21:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -5967,7 +6502,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":14,"./_stream_duplex":15,"./internal/streams/destroy":22,"./internal/streams/state":26,"./internal/streams/stream":27,"_process":7,"buffer":3,"inherits":6,"util-deprecate":32}],20:[function(require,module,exports){
+},{"../errors":16,"./_stream_duplex":17,"./internal/streams/destroy":24,"./internal/streams/state":28,"./internal/streams/stream":29,"_process":9,"buffer":4,"inherits":7,"util-deprecate":34}],22:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -6177,7 +6712,7 @@ var createReadableStreamAsyncIterator = function createReadableStreamAsyncIterat
 
 module.exports = createReadableStreamAsyncIterator;
 }).call(this)}).call(this,require('_process'))
-},{"./end-of-stream":23,"_process":7}],21:[function(require,module,exports){
+},{"./end-of-stream":25,"_process":9}],23:[function(require,module,exports){
 'use strict';
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -6388,7 +6923,7 @@ function () {
 
   return BufferList;
 }();
-},{"buffer":3,"util":2}],22:[function(require,module,exports){
+},{"buffer":4,"util":3}],24:[function(require,module,exports){
 (function (process){(function (){
 'use strict'; // undocumented cb() API, needed for core, not for public API
 
@@ -6496,7 +7031,7 @@ module.exports = {
   errorOrDestroy: errorOrDestroy
 };
 }).call(this)}).call(this,require('_process'))
-},{"_process":7}],23:[function(require,module,exports){
+},{"_process":9}],25:[function(require,module,exports){
 // Ported from https://github.com/mafintosh/end-of-stream with
 // permission from the author, Mathias Buus (@mafintosh).
 'use strict';
@@ -6601,12 +7136,12 @@ function eos(stream, opts, callback) {
 }
 
 module.exports = eos;
-},{"../../../errors":14}],24:[function(require,module,exports){
+},{"../../../errors":16}],26:[function(require,module,exports){
 module.exports = function () {
   throw new Error('Readable.from is not available in the browser')
 };
 
-},{}],25:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 // Ported from https://github.com/mafintosh/pump with
 // permission from the author, Mathias Buus (@mafintosh).
 'use strict';
@@ -6704,7 +7239,7 @@ function pipeline() {
 }
 
 module.exports = pipeline;
-},{"../../../errors":14,"./end-of-stream":23}],26:[function(require,module,exports){
+},{"../../../errors":16,"./end-of-stream":25}],28:[function(require,module,exports){
 'use strict';
 
 var ERR_INVALID_OPT_VALUE = require('../../../errors').codes.ERR_INVALID_OPT_VALUE;
@@ -6732,10 +7267,10 @@ function getHighWaterMark(state, options, duplexKey, isDuplex) {
 module.exports = {
   getHighWaterMark: getHighWaterMark
 };
-},{"../../../errors":14}],27:[function(require,module,exports){
+},{"../../../errors":16}],29:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":4}],28:[function(require,module,exports){
+},{"events":5}],30:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -7032,7 +7567,7 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":12}],29:[function(require,module,exports){
+},{"safe-buffer":14}],31:[function(require,module,exports){
 (function (setImmediate,clearImmediate){(function (){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -7111,7 +7646,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this)}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":7,"timers":29}],30:[function(require,module,exports){
+},{"process/browser.js":9,"timers":31}],32:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -7845,7 +8380,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":31,"punycode":8,"querystring":11}],31:[function(require,module,exports){
+},{"./util":33,"punycode":10,"querystring":13}],33:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -7863,7 +8398,7 @@ module.exports = {
   }
 };
 
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 (function (global){(function (){
 
 /**
@@ -7934,7 +8469,7 @@ function config (name) {
 }
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],33:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 (function (process){(function (){
 if (process.env.NODE_ENV === "production") {
   module.exports = require("./snoo_prod");
@@ -7943,7 +8478,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./snoo":34,"./snoo_prod":35,"_process":7}],34:[function(require,module,exports){
+},{"./snoo":36,"./snoo_prod":37,"_process":9}],36:[function(require,module,exports){
 module.exports = {
   userAgent: "Reader",
   clientId: "IVb6m_7T2jstyA",
@@ -7953,7 +8488,7 @@ module.exports = {
 };
 
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 (function (process){(function (){
 module.exports = {
   userAgent: process.env.USER_AGENT,
@@ -7964,7 +8499,7 @@ module.exports = {
 };
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":7}],36:[function(require,module,exports){
+},{"_process":9}],38:[function(require,module,exports){
 (function (process,global,setImmediate){(function (){
 /* @preserve
  * The MIT License (MIT)
@@ -13745,7 +14280,124 @@ module.exports = ret;
 },{"./es5":13,"async_hooks":undefined}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"_process":7,"timers":29}],37:[function(require,module,exports){
+},{"_process":9,"timers":31}],39:[function(require,module,exports){
+(function (process){(function (){
+/* @flow */
+/*::
+
+type DotenvParseOptions = {
+  debug?: boolean
+}
+
+// keys and values from src
+type DotenvParseOutput = { [string]: string }
+
+type DotenvConfigOptions = {
+  path?: string, // path to .env file
+  encoding?: string, // encoding of .env file
+  debug?: string // turn on logging for debugging purposes
+}
+
+type DotenvConfigOutput = {
+  parsed?: DotenvParseOutput,
+  error?: Error
+}
+
+*/
+
+const fs = require('fs')
+const path = require('path')
+
+function log (message /*: string */) {
+  console.log(`[dotenv][DEBUG] ${message}`)
+}
+
+const NEWLINE = '\n'
+const RE_INI_KEY_VAL = /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/
+const RE_NEWLINES = /\\n/g
+const NEWLINES_MATCH = /\n|\r|\r\n/
+
+// Parses src into an Object
+function parse (src /*: string | Buffer */, options /*: ?DotenvParseOptions */) /*: DotenvParseOutput */ {
+  const debug = Boolean(options && options.debug)
+  const obj = {}
+
+  // convert Buffers before splitting into lines and processing
+  src.toString().split(NEWLINES_MATCH).forEach(function (line, idx) {
+    // matching "KEY' and 'VAL' in 'KEY=VAL'
+    const keyValueArr = line.match(RE_INI_KEY_VAL)
+    // matched?
+    if (keyValueArr != null) {
+      const key = keyValueArr[1]
+      // default undefined or missing values to empty string
+      let val = (keyValueArr[2] || '')
+      const end = val.length - 1
+      const isDoubleQuoted = val[0] === '"' && val[end] === '"'
+      const isSingleQuoted = val[0] === "'" && val[end] === "'"
+
+      // if single or double quoted, remove quotes
+      if (isSingleQuoted || isDoubleQuoted) {
+        val = val.substring(1, end)
+
+        // if double quoted, expand newlines
+        if (isDoubleQuoted) {
+          val = val.replace(RE_NEWLINES, NEWLINE)
+        }
+      } else {
+        // remove surrounding whitespace
+        val = val.trim()
+      }
+
+      obj[key] = val
+    } else if (debug) {
+      log(`did not match key and value when parsing line ${idx + 1}: ${line}`)
+    }
+  })
+
+  return obj
+}
+
+// Populates process.env from .env file
+function config (options /*: ?DotenvConfigOptions */) /*: DotenvConfigOutput */ {
+  let dotenvPath = path.resolve(process.cwd(), '.env')
+  let encoding /*: string */ = 'utf8'
+  let debug = false
+
+  if (options) {
+    if (options.path != null) {
+      dotenvPath = options.path
+    }
+    if (options.encoding != null) {
+      encoding = options.encoding
+    }
+    if (options.debug != null) {
+      debug = true
+    }
+  }
+
+  try {
+    // specifying an encoding returns a string instead of a buffer
+    const parsed = parse(fs.readFileSync(dotenvPath, { encoding }), { debug })
+
+    Object.keys(parsed).forEach(function (key) {
+      if (!Object.prototype.hasOwnProperty.call(process.env, key)) {
+        process.env[key] = parsed[key]
+      } else if (debug) {
+        log(`"${key}" is already defined in \`process.env\` and will not be overwritten`)
+      }
+    })
+
+    return { parsed }
+  } catch (e) {
+    return { error: e }
+  }
+}
+
+module.exports.config = config
+module.exports.parse = parse
+
+}).call(this)}).call(this,require('_process'))
+},{"_process":9,"fs":1,"path":8}],40:[function(require,module,exports){
 'use strict';
 var handlers;
 
@@ -13833,7 +14485,7 @@ if (typeof Proxy !== 'undefined') {
 
 module.exports = wrap;
 
-},{"harmony-reflect":2}],38:[function(require,module,exports){
+},{"harmony-reflect":3}],41:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13853,7 +14505,7 @@ PromiseCopy.config({
 });
 var _default = PromiseCopy;
 exports.default = _default;
-},{"bluebird":36}],39:[function(require,module,exports){
+},{"bluebird":38}],42:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13920,7 +14572,7 @@ var MAX_API_MORECHILDREN_AMOUNT = 20;
 exports.MAX_API_MORECHILDREN_AMOUNT = MAX_API_MORECHILDREN_AMOUNT;
 var MAX_LISTING_ITEMS = 100;
 exports.MAX_LISTING_ITEMS = MAX_LISTING_ITEMS;
-},{}],40:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13943,7 +14595,7 @@ function _default() {
   config.proxies = true;
   return (0, _helpers.addSnakeCaseShadowProps)(config);
 }
-},{"./helpers.js":42}],41:[function(require,module,exports){
+},{"./helpers.js":45}],44:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13999,7 +14651,7 @@ exports.StatusCodeError = StatusCodeError;
 function rateLimitWarning(millisecondsUntilReset) {
   return "Warning: ".concat(_constants.MODULE_NAME, " temporarily stopped sending requests because reddit's ratelimit was exceeded. The request you attempted to send was queued, and will be sent to reddit when the current ratelimit period expires in ").concat(millisecondsUntilReset / 1000, " seconds.");
 }
-},{"./constants.js":39}],42:[function(require,module,exports){
+},{"./constants.js":42}],45:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14239,7 +14891,7 @@ function defineInspectFunc(obj, inspectFunc) {
 function requiredArg(argName) {
   throw new TypeError("Missing required argument ".concat(argName));
 }
-},{"./constants.js":39,"./objects/More.js":47,"lodash":62,"util":2}],43:[function(require,module,exports){
+},{"./constants.js":42,"./objects/More.js":50,"lodash":65,"util":3}],46:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14332,7 +14984,7 @@ var Comment = class Comment extends _VoteableContent.default {
 };
 var _default = Comment;
 exports.default = _default;
-},{"../helpers.js":42,"./Listing.js":44,"./More.js":47,"./VoteableContent.js":56}],44:[function(require,module,exports){
+},{"../helpers.js":45,"./Listing.js":47,"./More.js":50,"./VoteableContent.js":59}],47:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14669,7 +15321,7 @@ var Listing = class Listing extends Array {
 });
 var _default = Listing;
 exports.default = _default;
-},{"../Promise.js":38,"../errors.js":41,"../helpers.js":42,"./More.js":47,"lodash":62,"url":30,"util":2}],45:[function(require,module,exports){
+},{"../Promise.js":41,"../errors.js":44,"../helpers.js":45,"./More.js":50,"lodash":65,"url":32,"util":3}],48:[function(require,module,exports){
 (function (global){(function (){
 "use strict";
 
@@ -15102,7 +15754,7 @@ var LiveThread = class LiveThread extends _RedditContent.default {
 var _default = LiveThread;
 exports.default = _default;
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../helpers.js":42,"./RedditContent.js":50,"events":4,"ws":2}],46:[function(require,module,exports){
+},{"../helpers.js":45,"./RedditContent.js":53,"events":5,"ws":3}],49:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15385,7 +16037,7 @@ var ModmailConversation = class ModmailConversation extends _RedditContent.defau
 };
 var _default = ModmailConversation;
 exports.default = _default;
-},{"./RedditContent.js":50}],47:[function(require,module,exports){
+},{"./RedditContent.js":53}],50:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15524,7 +16176,7 @@ var emptyChildren = new More({
 exports.emptyChildren = emptyChildren;
 var _default = More;
 exports.default = _default;
-},{"../Promise.js":38,"../constants.js":39,"../helpers.js":42,"lodash":62}],48:[function(require,module,exports){
+},{"../Promise.js":41,"../constants.js":42,"../helpers.js":45,"lodash":65}],51:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15725,7 +16377,7 @@ Object.defineProperty(MultiReddit.prototype, 'delete', {
 });
 var _default = MultiReddit;
 exports.default = _default;
-},{"./RedditContent.js":50}],49:[function(require,module,exports){
+},{"./RedditContent.js":53}],52:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15831,7 +16483,7 @@ var PrivateMessage = class PrivateMessage extends _ReplyableContent.default {
 };
 var _default = PrivateMessage;
 exports.default = _default;
-},{"../helpers.js":42,"./ReplyableContent.js":52}],50:[function(require,module,exports){
+},{"../helpers.js":45,"./ReplyableContent.js":55}],53:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16019,7 +16671,7 @@ _constants.HTTP_VERBS.forEach(function (method) {
 
 var _default = RedditContent;
 exports.default = _default;
-},{"../Promise.js":38,"../constants.js":39,"../helpers.js":42,"./Listing.js":44,"lodash":62,"util":2}],51:[function(require,module,exports){
+},{"../Promise.js":41,"../constants.js":42,"../helpers.js":45,"./Listing.js":47,"lodash":65,"util":3}],54:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16398,7 +17050,7 @@ var RedditUser = class RedditUser extends _RedditContent.default {
 };
 var _default = RedditUser;
 exports.default = _default;
-},{"../constants.js":39,"../errors.js":41,"./RedditContent.js":50}],52:[function(require,module,exports){
+},{"../constants.js":42,"../errors.js":44,"./RedditContent.js":53}],55:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16557,7 +17209,7 @@ var ReplyableContent = class ReplyableContent extends _RedditContent.default {
 };
 var _default = ReplyableContent;
 exports.default = _default;
-},{"../helpers.js":42,"./RedditContent.js":50}],53:[function(require,module,exports){
+},{"../helpers.js":45,"./RedditContent.js":53}],56:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16961,7 +17613,7 @@ var Submission = class Submission extends _VoteableContent.default {
 };
 var _default = Submission;
 exports.default = _default;
-},{"../helpers.js":42,"./VoteableContent.js":56}],54:[function(require,module,exports){
+},{"../helpers.js":45,"./VoteableContent.js":59}],57:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18854,7 +19506,7 @@ var Subreddit = class Subreddit extends _RedditContent.default {
 };
 var _default = Subreddit;
 exports.default = _default;
-},{"../Promise.js":38,"../errors.js":41,"../helpers.js":42,"./RedditContent.js":50,"fs":2,"lodash":62,"stream":13}],55:[function(require,module,exports){
+},{"../Promise.js":41,"../errors.js":44,"../helpers.js":45,"./RedditContent.js":53,"fs":3,"lodash":65,"stream":15}],58:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18872,7 +19524,7 @@ class UserList {
 }
 
 exports.default = UserList;
-},{}],56:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19188,7 +19840,7 @@ Object.defineProperty(VoteableContent.prototype, 'delete', {
 });
 var _default = VoteableContent;
 exports.default = _default;
-},{"../Promise.js":38,"../helpers.js":42,"./ReplyableContent.js":52}],57:[function(require,module,exports){
+},{"../Promise.js":41,"../helpers.js":45,"./ReplyableContent.js":55}],60:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19418,7 +20070,7 @@ var WikiPage = class WikiPage extends _RedditContent.default {
 };
 var _default = WikiPage;
 exports.default = _default;
-},{"./RedditContent.js":50}],58:[function(require,module,exports){
+},{"./RedditContent.js":53}],61:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19546,7 +20198,7 @@ var _UserList = _interopRequireDefault(require("./UserList.js"));
 var _ModmailConversation = _interopRequireDefault(require("./ModmailConversation.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./Comment.js":43,"./Listing.js":44,"./LiveThread.js":45,"./ModmailConversation.js":46,"./More.js":47,"./MultiReddit.js":48,"./PrivateMessage.js":49,"./RedditContent.js":50,"./RedditUser.js":51,"./ReplyableContent.js":52,"./Submission.js":53,"./Subreddit.js":54,"./UserList.js":55,"./VoteableContent.js":56,"./WikiPage.js":57}],59:[function(require,module,exports){
+},{"./Comment.js":46,"./Listing.js":47,"./LiveThread.js":48,"./ModmailConversation.js":49,"./More.js":50,"./MultiReddit.js":51,"./PrivateMessage.js":52,"./RedditContent.js":53,"./RedditUser.js":54,"./ReplyableContent.js":55,"./Submission.js":56,"./Subreddit.js":57,"./UserList.js":58,"./VoteableContent.js":59,"./WikiPage.js":60}],62:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19913,7 +20565,7 @@ var rawRequest = typeof XMLHttpRequest !== 'undefined' ? require('./xhr') : requ
   gzip: true
 });
 exports.rawRequest = rawRequest;
-},{"./Promise.js":38,"./constants.js":39,"./errors.js":41,"./xhr":61,"lodash":62,"request-promise":2}],60:[function(require,module,exports){
+},{"./Promise.js":41,"./constants.js":42,"./errors.js":44,"./xhr":64,"lodash":65,"request-promise":3}],63:[function(require,module,exports){
 (function (global){(function (){
 "use strict";
 
@@ -22475,7 +23127,7 @@ if (!module.parent && _helpers.isBrowser) {
 
 module.exports = snoowrap;
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./Promise.js":38,"./constants.js":39,"./create_config.js":40,"./errors.js":41,"./helpers.js":42,"./objects/index.js":58,"./request_handler.js":59,"lodash":62,"promise-chains":37,"util":2}],61:[function(require,module,exports){
+},{"./Promise.js":41,"./constants.js":42,"./create_config.js":43,"./errors.js":44,"./helpers.js":45,"./objects/index.js":61,"./request_handler.js":62,"lodash":65,"promise-chains":40,"util":3}],64:[function(require,module,exports){
 "use strict";
 
 var _Promise = _interopRequireDefault(require("./Promise.js"));
@@ -22600,7 +23252,7 @@ module.exports = function rawRequest(options) {
     throw err;
   });
 };
-},{"./Promise.js":38,"./errors.js":41,"querystring":11,"url":30}],62:[function(require,module,exports){
+},{"./Promise.js":41,"./errors.js":44,"querystring":13,"url":32}],65:[function(require,module,exports){
 (function (global){(function (){
 /**
  * @license
@@ -39765,7 +40417,10 @@ module.exports = function rawRequest(options) {
 }.call(this));
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],63:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
+require("dotenv").config();
+//use the .env file to load the snoowrap stuff instead of requiring keys
+
 const keys = require("../../config/keys.js");
 const snoowrap = require("snoowrap");
 const r = new snoowrap({
@@ -39785,8 +40440,8 @@ async function fetchComments(response) {
   // for (let i = 0; i < content.comments.length; i++) {
   //   console.log(content.comments[i].body);
   // }
+  clearThreads();
 
-  clearScreen();
   let comments = document.createElement("div");
   comments.classList.add("comments");
   document.body.appendChild(comments);
@@ -39794,10 +40449,10 @@ async function fetchComments(response) {
   appendComments(content);
 }
 
-function clearScreen() {
-  let body = document.getElementsByTagName("BODY")[0];
-  while (body.firstChild) {
-    body.removeChild(body.lastChild);
+function clearThreads() {
+  let threads = document.querySelector(".threads");
+  while (threads.firstChild) {
+    threads.removeChild(threads.lastChild);
   }
 }
 
@@ -39811,9 +40466,10 @@ function appendComments(content) {
 }
 
 function setupVoice() {
+  let nav = document.querySelector(".nav");
   let selectList = document.createElement("select");
   selectList.name = "voices";
-  document.body.appendChild(selectList);
+  nav.appendChild(selectList);
 
   const voicesDropdown = document.querySelector('[name="voices"]');
   voices = this.getVoices();
@@ -39839,8 +40495,13 @@ function toggle(startOver = true) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  r.getSubreddit("wallstreetbets")
+function getSubreddit(e) {
+  e.preventDefault();
+  let threads = document.querySelector(".threads");
+  while (threads.firstChild) {
+    threads.removeChild(threads.lastChild);
+  }
+  r.getSubreddit(e.target[0].value)
     .getHot()
     .then((response) => {
       for (let i = 0; i < response.length; i++) {
@@ -39849,14 +40510,21 @@ document.addEventListener("DOMContentLoaded", () => {
         let linkText = document.createTextNode(response[i].title);
         link.appendChild(linkText);
         link.title = response[i].title;
-        document.body.appendChild(link);
+        threads.appendChild(link);
         link.addEventListener("click", () => fetchComments(response[i]));
-        document.body.appendChild(linebreak);
+        threads.appendChild(linebreak);
       }
+    })
+    .catch((error) => {
+      console.log(error);
     });
+}
 
+document.addEventListener("DOMContentLoaded", () => {
+  let subreddit = document.querySelector(".subreddit");
+  subreddit.addEventListener("submit", (e) => getSubreddit(e));
   speakButton.addEventListener("click", toggle);
   stopButton.addEventListener("click", () => toggle(false));
 });
 
-},{"../../config/keys.js":33,"snoowrap":60}]},{},[63]);
+},{"../../config/keys.js":35,"dotenv":39,"snoowrap":63}]},{},[66]);
