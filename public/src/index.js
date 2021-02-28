@@ -74,8 +74,10 @@ function toggle(startOver = true) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  r.getSubreddit("wallstreetbets")
+function getSubreddit(e) {
+  e.preventDefault();
+
+  r.getSubreddit(e.currentTarget.value)
     .getHot()
     .then((response) => {
       for (let i = 0; i < response.length; i++) {
@@ -88,8 +90,15 @@ document.addEventListener("DOMContentLoaded", () => {
         link.addEventListener("click", () => fetchComments(response[i]));
         document.body.appendChild(linebreak);
       }
+    })
+    .catch((error) => {
+      console.log(error);
     });
+}
 
+document.addEventListener("DOMContentLoaded", () => {
+  let subreddit = document.querySelector(".subreddit");
+  subreddit.addEventListener("submit", getSubreddit(e));
   speakButton.addEventListener("click", toggle);
   stopButton.addEventListener("click", () => toggle(false));
 });
