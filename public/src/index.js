@@ -98,6 +98,7 @@ function getSubreddit(e) {
     .catch((error) => {
       console.log(error);
     });
+  e.target[0].value = "";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
