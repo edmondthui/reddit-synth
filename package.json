@@ -12,8 +12,7 @@
     "node": "12.13.1"
   },
   "scripts": {
-    "start": "nodemon app.js",
-    "heroku-postbuild": "browserify public/src/index.js -o public/bundle.js"
+    "start": "nodemon app.js"
   },
   "dependencies": {
     "browserify": "^17.0.0",
