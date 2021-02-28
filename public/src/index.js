@@ -1,7 +1,7 @@
 require("dotenv").config();
 //use the .env file to load the snoowrap stuff instead of requiring keys
 
-const keys = require("../../config/keys.js");
+const keys = require("../../config/keys");
 const snoowrap = require("snoowrap");
 const r = new snoowrap({
   userAgent: keys.userAgent,
