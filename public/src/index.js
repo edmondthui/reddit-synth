@@ -25,8 +25,8 @@ async function fetchComments(response) {
   let comments = document.createElement("div");
   comments.classList.add("comments");
   document.body.appendChild(comments);
-  speechSynthesis.addEventListener("voiceschanged", setupVoice);
   appendComments(content);
+  speechSynthesis.addEventListener("voiceschanged", setupVoice);
 }
 
 function clearThreads() {
@@ -43,6 +43,13 @@ function appendComments(content) {
     comment.innerHTML = content.comments[i].body;
     comments.appendChild(comment);
   }
+  let commentArray = [];
+  [...comments.children].forEach((comment) => {
+    commentArray.push(comment.innerText);
+  });
+  msg.text = commentArray.join(". !");
+  console.log(comments);
+  console.log(content);
 }
 
 function setupVoice() {
@@ -90,6 +97,7 @@ function getSubreddit(e) {
         let linkText = document.createTextNode(response[i].title);
         link.appendChild(linkText);
         link.title = response[i].title;
+        link.classList.add("thread");
         threads.appendChild(link);
         link.addEventListener("click", () => fetchComments(response[i]));
         threads.appendChild(linebreak);
@@ -101,12 +109,20 @@ function getSubreddit(e) {
   e.target[0].value = "";
 }
 
+function setOption() {
+  msg[this.name] = this.value;
+  toggle();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  const options = document.querySelectorAll('[type="range"], [name="text"]');
+  let speakButton = document.querySelector(".fa-play");
+  let stopButton = document.querySelector(".fa-pause");
   let subreddit = document.querySelector(".subreddit");
+  options.forEach((option) => option.addEventListener("change", setOption));
   subreddit.addEventListener("submit", (e) => getSubreddit(e));
   speakButton.addEventListener("click", toggle);
   stopButton.addEventListener("click", () => toggle(false));
 });
-
 
 //browserify public/src/index.js -o public/bundle.js

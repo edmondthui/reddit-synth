@@ -12,7 +12,8 @@
     "node": "12.13.1"
   },
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "nodemon app.js",
+    "bundle": "browserify public/src/index.js -o public/bundle.js"
   },
   "dependencies": {
     "browserify": "^17.0.0",
