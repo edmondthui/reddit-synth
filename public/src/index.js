@@ -12,6 +12,8 @@ const r = new snoowrap({
 
 const msg = new SpeechSynthesisUtterance();
 let voices = [];
+let commentArray = [];
+let speaking = false;
 
 async function fetchComments(response) {
   let content = await r
@@ -43,13 +45,12 @@ function appendComments(content) {
     comment.innerHTML = content.comments[i].body;
     comments.appendChild(comment);
   }
-  let commentArray = [];
   [...comments.children].forEach((comment) => {
     commentArray.push(comment.innerText);
   });
-  msg.text = commentArray.join(". !");
-  console.log(comments);
-  console.log(content);
+
+  let speakButton = document.querySelector(".fa-play");
+  speakButton.addEventListener("click", () => toggle(commentArray));
 }
 
 function setupVoice() {
@@ -72,12 +73,15 @@ function setupVoice() {
 
 function setVoice() {
   msg.voice = voices.find((voice) => voice.name === this.value);
-  toggle();
 }
 
-function toggle(startOver = true) {
-  speechSynthesis.cancel();
-  if (startOver) {
+function toggle(comments) {
+  if (speaking) {
+    speechSynthesis.cancel();
+    speaking = false;
+  } else {
+    speaking = true;
+    msg.text = comments.join("");
     speechSynthesis.speak(msg);
   }
 }
@@ -111,18 +115,17 @@ function getSubreddit(e) {
 
 function setOption() {
   msg[this.name] = this.value;
-  toggle();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const options = document.querySelectorAll('[type="range"], [name="text"]');
-  let speakButton = document.querySelector(".fa-play");
-  let stopButton = document.querySelector(".fa-pause");
+  // let speakButton = document.querySelector(".fa-play");
+  // let stopButton = document.querySelector(".fa-pause");
   let subreddit = document.querySelector(".subreddit");
   options.forEach((option) => option.addEventListener("change", setOption));
   subreddit.addEventListener("submit", (e) => getSubreddit(e));
-  speakButton.addEventListener("click", toggle);
-  stopButton.addEventListener("click", () => toggle(false));
+  // speakButton.addEventListener("click", toggle);
+  // stopButton.addEventListener("click", () => toggle(false));
 });
 
 //browserify public/src/index.js -o public/bundle.js
