@@ -40434,11 +40434,12 @@ const msg = new SpeechSynthesisUtterance();
 let voices = [];
 let commentArray = [];
 let speaking = false;
+speechSynthesis.addEventListener("voiceschanged", setupVoice);
 
 async function fetchComments(response) {
   let content = await r
     .getSubmission(response.id)
-    .expandReplies({ limit: 60, depth: 0 });
+    .expandReplies({ limit: 10, depth: 0 });
   // for (let i = 0; i < content.comments.length; i++) {
   //   console.log(content.comments[i].body);
   // }
@@ -40448,7 +40449,10 @@ async function fetchComments(response) {
   comments.classList.add("comments");
   document.body.appendChild(comments);
   appendComments(content);
-  speechSynthesis.addEventListener("voiceschanged", setupVoice);
+}
+
+function setVoice() {
+  msg.voice = voices.find((voice) => voice.name === this.value);
 }
 
 function clearThreads() {
@@ -40474,12 +40478,7 @@ function appendComments(content) {
 }
 
 function setupVoice() {
-  let nav = document.querySelector(".nav");
-  let selectList = document.createElement("select");
-  selectList.name = "voices";
-  nav.appendChild(selectList);
-
-  const voicesDropdown = document.querySelector('[name="voices"]');
+  const voicesDropdown = document.querySelector('[name="voice"]');
   voices = this.getVoices();
   voicesDropdown.innerHTML = voices
     .map(
@@ -40487,21 +40486,22 @@ function setupVoice() {
         `<option value='${voice.name}'>${voice.name} (${voice.lang})</option>`
     )
     .join("");
-
   voicesDropdown.addEventListener("change", setVoice);
-}
-
-function setVoice() {
-  msg.voice = voices.find((voice) => voice.name === this.value);
 }
 
 function toggle(comments) {
   if (speaking) {
+    let speakButton = document.querySelector(".fa-stop");
+    speakButton.classList.remove("fa-stop");
+    speakButton.classList.add("fa-play");
     speechSynthesis.cancel();
     speaking = false;
   } else {
+    let speakButton = document.querySelector(".fa-play");
+    speakButton.classList.remove("fa-play");
+    speakButton.classList.add("fa-stop");
     speaking = true;
-    msg.text = comments.join("");
+    msg.text = comments.join(".");
     speechSynthesis.speak(msg);
   }
 }
@@ -40526,9 +40526,6 @@ function getSubreddit(e) {
         link.addEventListener("click", () => fetchComments(response[i]));
         threads.appendChild(linebreak);
       }
-    })
-    .catch((error) => {
-      console.log(error);
     });
   e.target[0].value = "";
 }
@@ -40537,17 +40534,9 @@ function setOption() {
   msg[this.name] = this.value;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const options = document.querySelectorAll('[type="range"], [name="text"]');
-  // let speakButton = document.querySelector(".fa-play");
-  // let stopButton = document.querySelector(".fa-pause");
-  let subreddit = document.querySelector(".subreddit");
-  options.forEach((option) => option.addEventListener("change", setOption));
-  subreddit.addEventListener("submit", (e) => getSubreddit(e));
-  // speakButton.addEventListener("click", toggle);
-  // stopButton.addEventListener("click", () => toggle(false));
-});
-
-//browserify public/src/index.js -o public/bundle.js
+const options = document.querySelectorAll('[type="range"], [name="text"]');
+let subreddit = document.querySelector(".subreddit");
+options.forEach((option) => option.addEventListener("change", setOption));
+subreddit.addEventListener("submit", (e) => getSubreddit(e));
 
 },{"../../config/keys":35,"dotenv":39,"snoowrap":63}]},{},[66]);
