@@ -1,3 +1,14 @@
 a.thread:hover {
   cursor: pointer;
 }
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slider {
+  display: flex;
+  align-items: center;
+}

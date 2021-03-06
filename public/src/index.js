@@ -54,7 +54,7 @@ function appendComments(content) {
   });
 
   let speakButton = document.querySelector(".fa-play");
-  speakButton.addEventListener("click", () => toggle(commentArray));
+  speakButton.addEventListener("click", () => toggle());
 }
 
 function setupVoice() {
@@ -69,7 +69,7 @@ function setupVoice() {
   voicesDropdown.addEventListener("change", setVoice);
 }
 
-function toggle(comments) {
+function toggle() {
   if (speaking) {
     let speakButton = document.querySelector(".fa-stop");
     speakButton.classList.remove("fa-stop");
@@ -81,8 +81,20 @@ function toggle(comments) {
     speakButton.classList.remove("fa-play");
     speakButton.classList.add("fa-stop");
     speaking = true;
-    msg.text = comments.join(".");
+    readComments();
+  }
+}
+
+function readComments() {
+  if (speaking) {
+    msg.text = commentArray[0];
     speechSynthesis.speak(msg);
+    msg.onend = function () {
+      let comments = document.querySelector(".comments");
+      comments.removeChild(comments.firstChild);
+      commentArray = commentArray.slice(1);
+      readComments();
+    };
   }
 }
 
@@ -111,7 +123,11 @@ function getSubreddit(e) {
 }
 
 function setOption() {
-  msg[this.name] = this.value;
+  if (this.name === "volume") {
+    msg.volume = this.value;
+  } else {
+    msg[this.name] = this.value;
+  }
 }
 
 const options = document.querySelectorAll('[type="range"], [name="text"]');
