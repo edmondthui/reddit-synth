@@ -20,6 +20,13 @@ body {
 
 .nav h1 a {
   text-decoration: none;
-  decoration: none;
   color: black;
+}
+
+.fa:hover {
+  cursor: pointer;
+}
+
+.speech-controls {
+  
 }
