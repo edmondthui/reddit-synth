@@ -108,15 +108,15 @@ function getSubreddit(e) {
     .getHot()
     .then((response) => {
       for (let i = 0; i < response.length; i++) {
-        let linebreak = document.createElement("br");
-        let link = document.createElement("a");
+        // let linebreak = document.createElement("br");
+        let link = document.createElement("p");
         let linkText = document.createTextNode(response[i].title);
         link.appendChild(linkText);
-        link.title = response[i].title;
+        link.text = response[i].title;
         link.classList.add("thread");
         threads.appendChild(link);
         link.addEventListener("click", () => fetchComments(response[i]));
-        threads.appendChild(linebreak);
+        // threads.appendChild(linebreak);
       }
     });
   e.target[0].value = "";

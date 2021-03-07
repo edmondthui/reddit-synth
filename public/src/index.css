@@ -1,4 +1,4 @@
-a.thread:hover {
+.thread:hover {
   cursor: pointer;
 }
 
@@ -11,4 +11,9 @@ a.thread:hover {
 .slider {
   display: flex;
   align-items: center;
+}
+
+body {
+  font-family: sans-serif;
+  margin: 0 40px;
 }
