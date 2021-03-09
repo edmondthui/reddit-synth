@@ -104,7 +104,12 @@ function getSubreddit(e) {
   while (threads.firstChild) {
     threads.removeChild(threads.lastChild);
   }
-  r.getSubreddit(e.target[0].value)
+  let subreddits = document.querySelector(".subreddits");
+  while (subreddits.firstChild) {
+    subreddits.removeChild(subreddits.lastChild);
+  }
+  let search = document.querySelector(".search").children[0];
+  r.getSubreddit(search.value)
     .getHot()
     .then((response) => {
       for (let i = 0; i < response.length; i++) {
@@ -117,7 +122,7 @@ function getSubreddit(e) {
         link.addEventListener("click", () => fetchComments(response[i]));
       }
     });
-  e.target[0].value = "";
+  search.value = "";
 }
 
 function setOption() {
@@ -129,6 +134,14 @@ function setOption() {
 }
 
 const options = document.querySelectorAll('[type="range"], [name="text"]');
-let subreddit = document.querySelector(".subreddit");
+let search = document.querySelector(".search");
 options.forEach((option) => option.addEventListener("change", setOption));
-subreddit.addEventListener("submit", (e) => getSubreddit(e));
+search.addEventListener("submit", (e) => getSubreddit(e));
+
+document.querySelectorAll(".subreddit").forEach((subreddit) =>
+  subreddit.addEventListener("click", (e) => {
+    let search = document.querySelector(".search");
+    search.children[0].value = e.target.innerHTML;
+    getSubreddit(e);
+  })
+);
