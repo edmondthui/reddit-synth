@@ -42,6 +42,13 @@ function clearThreads() {
   }
 }
 
+function clearSubreddits() {
+  let subreddits = document.querySelector(".subreddits");
+  while (subreddits.firstChild) {
+    subreddits.removeChild(subreddits.lastChild);
+  }
+}
+
 function appendComments(content) {
   let comments = document.querySelector(".comments");
   for (let i = 0; i < content.comments.length; i++) {
@@ -101,13 +108,9 @@ function readComments() {
 function getSubreddit(e) {
   e.preventDefault();
   let threads = document.querySelector(".threads");
-  while (threads.firstChild) {
-    threads.removeChild(threads.lastChild);
-  }
-  let subreddits = document.querySelector(".subreddits");
-  while (subreddits.firstChild) {
-    subreddits.removeChild(subreddits.lastChild);
-  }
+  commentArray = [];
+  clearThreads();
+  clearSubreddits();
   let search = document.querySelector(".search").children[0];
   r.getSubreddit(search.value)
     .getHot()
