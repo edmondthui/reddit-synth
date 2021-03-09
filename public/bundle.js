@@ -40465,7 +40465,6 @@ async function fetchComments(response) {
   //   console.log(content.comments[i].body);
   // }
   clearThreads();
-
   let comments = document.createElement("div");
   comments.classList.add("comments");
   document.body.appendChild(comments);
@@ -40481,6 +40480,11 @@ function clearThreads() {
   while (threads.firstChild) {
     threads.removeChild(threads.lastChild);
   }
+}
+
+function clearComments() {
+  let comments = document.querySelectorAll(".comments");
+  comments.forEach((comment) => comment.parentNode.removeChild(comment));
 }
 
 function clearSubreddits() {
@@ -40549,9 +40553,9 @@ function readComments() {
 function getSubreddit(e) {
   e.preventDefault();
   let threads = document.querySelector(".threads");
-  commentArray = [];
   clearThreads();
   clearSubreddits();
+  clearComments();
   let search = document.querySelector(".search").children[0];
   r.getSubreddit(search.value)
     .getHot()
