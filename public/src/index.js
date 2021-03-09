@@ -18,8 +18,6 @@ speechSynthesis.addEventListener("voiceschanged", setupVoice);
 
 async function fetchComments(response) {
   let title = response.title;
-  //TODO ADD TITLE TO DOCUMENT
-  console.log(response);
   let image;
   if (response.preview) {
     image = response.preview.images[0].source.url;
@@ -148,7 +146,6 @@ function getSubreddit(e) {
   r.getSubreddit(search.value)
     .getHot()
     .then((response) => {
-      console.log(search.value);
       title.innerHTML = "🔥 Threads";
       for (let i = 0; i < response.length; i++) {
         let link = document.createElement("p");
