@@ -18,6 +18,8 @@ body {
   font-family: sans-serif;
   margin: 0px;
   background-color: lightgray;
+  display: flex;
+  flex-direction: column;
 }
 
 .nav h1 a {
@@ -27,9 +29,6 @@ body {
 
 .fa:hover {
   cursor: pointer;
-}
-
-.speech-controls {
 }
 
 .nav {
@@ -94,4 +93,31 @@ body {
   padding: 20px;
   border-radius: 5px;
   border: 1px solid white;
+}
+
+.post-image {
+  width: 100%;
+  margin: 0 auto;
+  border-radius: 10px;
+}
+
+.post-content {
+  width: 50%;
+  height: 40%;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border: 1px solid white;
+  border-radius: 5px;
+  margin: 20px auto 10px auto;
+  padding: 20px;
+}
+
+.titles h1 {
+  text-align: center;
+  font-size: 24px;
+}
+
+.titles {
+  margin: auto;
 }

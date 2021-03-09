@@ -40458,14 +40458,27 @@ let speaking = false;
 speechSynthesis.addEventListener("voiceschanged", setupVoice);
 
 async function fetchComments(response) {
+  let title = response.title;
+  //TODO ADD TITLE TO DOCUMENT
+  console.log(response);
+  let image;
+  if (response.preview) {
+    image = response.preview.images[0].source.url;
+  }
+
   let content = await r
     .getSubmission(response.id)
     .expandReplies({ limit: 10, depth: 0 });
-  // for (let i = 0; i < content.comments.length; i++) {
-  //   console.log(content.comments[i].body);
-  // }
 
   clearThreads();
+
+  if (image) {
+    let postImage = document.querySelector(".post-image");
+    postImage.src = image;
+  }
+  let threadTitle = document.querySelector(".title");
+  threadTitle.innerHTML = title;
+
   let comments = document.createElement("div");
   comments.classList.add("comments");
   document.body.appendChild(comments);
@@ -40508,9 +40521,6 @@ function appendComments(content) {
   [...comments.children].forEach((comment) => {
     commentArray.push(comment.innerText);
   });
-
-  // let speakButton = document.querySelector(".fa");
-  // speakButton.addEventListener("click", () => toggle());
 }
 
 function setupVoice() {
@@ -40542,6 +40552,10 @@ function toggle() {
   }
 }
 
+function removeImage() {
+  document.querySelector(".post-image").src = "";
+}
+
 function readComments() {
   if (speaking) {
     msg.text = commentArray[0];
@@ -40564,6 +40578,9 @@ function readComments() {
 
 function getSubreddit(e) {
   e.preventDefault();
+  removeImage();
+  let title = document.querySelector(".title");
+  title.innerHTML = "Loading...";
   let threads = document.querySelector(".threads");
   clearThreads();
   clearSubreddits();
@@ -40572,6 +40589,8 @@ function getSubreddit(e) {
   r.getSubreddit(search.value)
     .getHot()
     .then((response) => {
+      console.log(search.value);
+      title.innerHTML = "🔥 Threads";
       for (let i = 0; i < response.length; i++) {
         let link = document.createElement("p");
         let linkText = document.createTextNode(response[i].title);
@@ -40609,6 +40628,8 @@ document.querySelectorAll(".subreddit").forEach((subreddit) =>
 document.addEventListener("DOMContentLoaded", () => {
   let speakButton = document.querySelector(".fa");
   speakButton.addEventListener("click", () => toggle());
+  let title = document.querySelector(".title");
+  title.innerHTML = "Subreddits";
 });
 
 },{"../../config/keys":35,"dotenv":39,"snoowrap":63}]},{},[66]);
