@@ -40464,6 +40464,7 @@ async function fetchComments(response) {
   // for (let i = 0; i < content.comments.length; i++) {
   //   console.log(content.comments[i].body);
   // }
+
   clearThreads();
   let comments = document.createElement("div");
   comments.classList.add("comments");
@@ -40483,8 +40484,11 @@ function clearThreads() {
 }
 
 function clearComments() {
+  commentArray = [];
   let comments = document.querySelectorAll(".comments");
-  comments.forEach((comment) => comment.parentNode.removeChild(comment));
+  if (comments) {
+    comments.forEach((comment) => comment.parentNode.removeChild(comment));
+  }
 }
 
 function clearSubreddits() {
@@ -40505,8 +40509,8 @@ function appendComments(content) {
     commentArray.push(comment.innerText);
   });
 
-  let speakButton = document.querySelector(".fa-play");
-  speakButton.addEventListener("click", () => toggle());
+  // let speakButton = document.querySelector(".fa");
+  // speakButton.addEventListener("click", () => toggle());
 }
 
 function setupVoice() {
@@ -40522,14 +40526,13 @@ function setupVoice() {
 }
 
 function toggle() {
+  let speakButton = document.querySelector(".fa");
   if (speaking) {
-    let speakButton = document.querySelector(".fa-stop");
     speakButton.classList.remove("fa-stop");
     speakButton.classList.add("fa-play");
     speechSynthesis.cancel();
     speaking = false;
   } else {
-    let speakButton = document.querySelector(".fa-play");
     speakButton.classList.remove("fa-play");
     speakButton.classList.add("fa-stop");
     speaking = true;
@@ -40543,9 +40546,16 @@ function readComments() {
     speechSynthesis.speak(msg);
     msg.onend = function () {
       let comments = document.querySelector(".comments");
-      comments.removeChild(comments.firstChild);
-      commentArray = commentArray.slice(1);
-      readComments();
+      if (comments) {
+        comments.removeChild(comments.firstChild);
+        commentArray = commentArray.slice(1);
+        readComments();
+      } else {
+        let speakButton = document.querySelector(".fa");
+        speakButton.classList.remove("fa-stop");
+        speakButton.classList.add("fa-play");
+        speaking = false;
+      }
     };
   }
 }
@@ -40593,5 +40603,10 @@ document.querySelectorAll(".subreddit").forEach((subreddit) =>
     getSubreddit(e);
   })
 );
+
+document.addEventListener("DOMContentLoaded", () => {
+  let speakButton = document.querySelector(".fa");
+  speakButton.addEventListener("click", () => toggle());
+});
 
 },{"../../config/keys":35,"dotenv":39,"snoowrap":63}]},{},[66]);
