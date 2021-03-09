@@ -85,17 +85,19 @@ function setupVoice() {
 }
 
 function toggle() {
-  let speakButton = document.querySelector(".fa");
-  if (speaking) {
-    speakButton.classList.remove("fa-stop");
-    speakButton.classList.add("fa-play");
-    speechSynthesis.cancel();
-    speaking = false;
-  } else {
-    speakButton.classList.remove("fa-play");
-    speakButton.classList.add("fa-stop");
-    speaking = true;
-    readComments();
+  if (commentArray.length > 0) {
+    let speakButton = document.querySelector(".fa");
+    if (speaking) {
+      speakButton.classList.remove("fa-stop");
+      speakButton.classList.add("fa-play");
+      speechSynthesis.cancel();
+      speaking = false;
+    } else {
+      speakButton.classList.remove("fa-play");
+      speakButton.classList.add("fa-stop");
+      speaking = true;
+      readComments();
+    }
   }
 }
 
