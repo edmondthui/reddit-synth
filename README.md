@@ -2,6 +2,8 @@
 
 Reddit synth pulls data from Reddit and uses the browser voice synthesis to read comments.
 
+[Live Demo](https://reddit-synth.herokuapp.com/)  
+
 ## Technologies
 * Express
 * Browserify
@@ -19,5 +21,5 @@ Reddit synth pulls data from Reddit and uses the browser voice synthesis to read
 ## Todo:
 User Google text to speech api to build a custom speech syntehsis model using audio recordings to create a unique and natural sounding voice.
 
-[Live Demo](https://reddit-synth.herokuapp.com/)  
+
 
