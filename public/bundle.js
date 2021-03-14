@@ -40456,6 +40456,28 @@ let voices = [];
 let commentArray = [];
 let speaking = false;
 speechSynthesis.addEventListener("voiceschanged", setupVoice);
+let backSearch;
+let defaultSubreddits = [
+  "wallstreetbets",
+  "TIFU",
+  "WritingPrompts",
+  "AskReddit",
+  "LifeProTips",
+  "explainlikeimfive",
+  "4chan",
+  "BlackPeopleTwitter",
+  "funny",
+  "prequelmemes",
+  "Aww",
+  "TodayILearned",
+  "Facepalm",
+  "CrappyDesign",
+  "subreddit",
+  "WTF",
+  "NoContextPics",
+  "MildlyInteresting",
+  "WholesomeMemes",
+];
 
 async function fetchComments(response) {
   let title = response.title;
@@ -40463,6 +40485,19 @@ async function fetchComments(response) {
   if (response.preview) {
     image = response.preview.images[0].source.url;
   }
+
+  let back = document.querySelector(".back");
+  back.removeEventListener("click", showSubreddits);
+  back.addEventListener("click", () => {
+    let image = document.querySelector(".post-image");
+    let title = document.querySelector(".title");
+    title.innerHTML = "Loading...";
+    if (image) {
+      image.src = "";
+    }
+    showThreads(backSearch);
+    back.addEventListener("click", showSubreddits);
+  });
 
   let content = await r
     .getSubmission(response.id)
@@ -40574,30 +40609,95 @@ function readComments() {
   }
 }
 
-function getSubreddit(e) {
-  e.preventDefault();
-  removeImage();
+function createDefaultSubreddits() {
+  let subreddits = document.querySelector(".subreddits");
   let title = document.querySelector(".title");
-  title.innerHTML = "Loading...";
-  let threads = document.querySelector(".threads");
+  title.innerHTML = "Subreddits";
+  let back = document.querySelector(".back");
+  back.parentNode.removeChild(back);
+  for (let i = 0; i < defaultSubreddits.length; i++) {
+    let subreddit = document.createElement("p");
+    let subredditText = document.createTextNode(defaultSubreddits[i]);
+    subreddit.appendChild(subredditText);
+    subreddit.classList.add("subreddit");
+    subreddits.appendChild(subreddit);
+    subreddit.addEventListener("click", (e) => {
+      let search = document.querySelector(".search");
+      search.children[0].value = e.target.innerHTML;
+      getSubreddit(e);
+    });
+  }
+}
+
+function showSubreddits() {
   clearThreads();
-  clearSubreddits();
+  createDefaultSubreddits();
+}
+
+function showThreads(subreddit) {
+  console.log(subreddit);
   clearComments();
-  let search = document.querySelector(".search").children[0];
-  r.getSubreddit(search.value)
+  clearThreads();
+  let title = document.querySelector(".title");
+  let threads = document.querySelector(".threads");
+  r.getSubreddit(subreddit)
     .getHot()
     .then((response) => {
       title.innerHTML = "🔥 Threads";
+      let postContent = document.querySelector(".post-content");
+      if (!document.querySelector(".back")) {
+        let backLink = document.createElement("p");
+        backLink.classList.add("back");
+        backLink.innerHTML = "⬅️ Back";
+        postContent.prepend(backLink);
+        backLink.addEventListener("click", showSubreddits);
+      }
+
       for (let i = 0; i < response.length; i++) {
         let link = document.createElement("p");
         let linkText = document.createTextNode(response[i].title);
         link.appendChild(linkText);
-        link.text = response[i].title;
         link.classList.add("thread");
         threads.appendChild(link);
         link.addEventListener("click", () => fetchComments(response[i]));
       }
     });
+}
+
+function getSubreddit(e) {
+  e.preventDefault();
+  removeImage();
+  let title = document.querySelector(".title");
+  title.innerHTML = "Loading...";
+
+  clearThreads();
+  clearSubreddits();
+  clearComments();
+  let search = document.querySelector(".search").children[0];
+  backSearch = search.value;
+  showThreads(search.value);
+  // r.getSubreddit(search.value)
+  //   .getHot()
+  //   .then((response) => {
+  //     title.innerHTML = "🔥 Threads";
+  //     let postContent = document.querySelector(".post-content");
+  //     if (!document.querySelector(".back")) {
+  //       let backLink = document.createElement("p");
+  //       backLink.classList.add("back");
+  //       backLink.innerHTML = "⬅️ Back";
+  //       postContent.prepend(backLink);
+  //       backLink.addEventListener("click", showSubreddits);
+  //     }
+
+  //     for (let i = 0; i < response.length; i++) {
+  //       let link = document.createElement("p");
+  //       let linkText = document.createTextNode(response[i].title);
+  //       link.appendChild(linkText);
+  //       link.classList.add("thread");
+  //       threads.appendChild(link);
+  //       link.addEventListener("click", () => fetchComments(response[i]));
+  //     }
+  //   });
   search.value = "";
 }
 

@@ -121,3 +121,7 @@ body {
 .titles {
   margin: auto;
 }
+
+.back:hover {
+  cursor: pointer;
+}
