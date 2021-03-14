@@ -40488,16 +40488,7 @@ async function fetchComments(response) {
 
   let back = document.querySelector(".back");
   back.removeEventListener("click", showSubreddits);
-  back.addEventListener("click", () => {
-    let image = document.querySelector(".post-image");
-    let title = document.querySelector(".title");
-    title.innerHTML = "Loading...";
-    if (image) {
-      image.src = "";
-    }
-    showThreads(backSearch);
-    back.addEventListener("click", showSubreddits);
-  });
+  back.addEventListener("click", threadBackClick);
 
   let content = await r
     .getSubmission(response.id)
@@ -40516,6 +40507,19 @@ async function fetchComments(response) {
   comments.classList.add("comments");
   document.body.appendChild(comments);
   appendComments(content);
+}
+
+function threadBackClick() {
+  let back = document.querySelector(".back");
+  let image = document.querySelector(".post-image");
+  let title = document.querySelector(".title");
+  title.innerHTML = "Loading...";
+  if (image) {
+    image.src = "";
+  }
+  showThreads(backSearch);
+  back.removeEventListener("click", threadBackClick);
+  back.addEventListener("click", showSubreddits);
 }
 
 function setVoice() {
