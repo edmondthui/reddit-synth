@@ -23,27 +23,57 @@
   </head>
   <body>
     <nav class="nav">
-      <h1><a href="https://reddit-synth.herokuapp.com/">Reddit Synth</a></h1>
-      <form class="search">
-        <input type="text" />
-        <input type="submit" value="Search subreddit"/>
-      </form>
-      <div><i class="fa fa-play"></i></div>
-      <div class="slider">
-        <label for="rate">Rate:</label>
-        <input name="rate" type="range" min="0" max="2" value="1" step="0.1" />
-      </div>
+      <div class="search-nav">
+        <h1><a href="https://reddit-synth.herokuapp.com/">Reddit Synth</a></h1>
+        <form class="search">
+          <input
+            type="text"
+            class="search-subreddit"
+            placeholder="Search Subreddit"
+          />
+          <input type="submit" hidden />
+        </form>
 
-      <div class="slider">
-        <label for="pitch">Pitch:</label>
-        <input name="pitch" type="range" min="0" max="2" step="0.1" />
+        <div class="social-links">
+          <a href="https://www.linkedin.com/in/edmond-hui/" target="_blank">
+            <i class="fab fa-linkedin social"></i>
+          </a>
+          <a href="https://github.com/edmondthui" target="_blank">
+            <i class="fab fa-github social"></i>
+          </a>
+          <a href="https://angel.co/u/edmondthui" target="_blank">
+            <i class="fab fa-angellist social"></i>
+          </a>
+          <a href="https://edmondhui.com" target="_blank">
+            <i class="fas fa-address-card social"></i>
+          </a>
+        </div>
       </div>
+      <div class="voice-settings">
+        <div><i class="fa fa-play"></i></div>
+        <div class="slider">
+          <label for="rate">Rate:</label>
+          <input
+            name="rate"
+            type="range"
+            min="0"
+            max="2"
+            value="1"
+            step="0.1"
+          />
+        </div>
 
-      <div class="slider">
-        <label for="volume">Volume:</label>
-        <input name="volume" type="range" min="0" max="1" step=".1" />
+        <div class="slider">
+          <label for="pitch">Pitch:</label>
+          <input name="pitch" type="range" min="0" max="2" step="0.1" />
+        </div>
+
+        <div class="slider">
+          <label for="volume">Volume:</label>
+          <input name="volume" type="range" min="0" max="1" step=".1" />
+        </div>
+        <select name="voice"></select>
       </div>
-      <select name="voice"></select>
     </nav>
     <div class="post-content">
       <div class="titles">
