@@ -40452,6 +40452,7 @@ const r = new snoowrap({
 });
 
 const msg = new SpeechSynthesisUtterance();
+let postText;
 let voices = [];
 let commentArray = [];
 let speaking = false;
@@ -40482,20 +40483,26 @@ let defaultSubreddits = [
 async function fetchComments(response) {
   let title = response.title;
   let image;
-  if (response.preview) {
-    image = response.preview.images[0].source.url;
-  }
 
   let back = document.querySelector(".back");
   back.removeEventListener("click", showSubreddits);
   back.addEventListener("click", threadBackClick);
 
-  let content = await r
-    .getSubmission(response.id)
-    .expandReplies({ limit: 10, depth: 0 });
+  let content = await r.getSubmission(response.id).expandReplies({ limit: 10 });
 
   clearThreads();
 
+  if (response.preview) {
+    image = response.preview.images[0].source.url;
+  }
+  if (content.media_metadata) {
+    image = Object.values(content.media_metadata)[0].s.u;
+  }
+  if (content.selftext) {
+    postText = content.selftext;
+    let postContent = document.querySelector(".post-text");
+    postContent.innerHTML = postText;
+  }
   if (image) {
     let postImage = document.querySelector(".post-image");
     postImage.src = image;
@@ -40512,10 +40519,14 @@ async function fetchComments(response) {
 function threadBackClick() {
   let back = document.querySelector(".back");
   let image = document.querySelector(".post-image");
+  let content = document.querySelector(".post-text");
   let title = document.querySelector(".title");
   title.innerHTML = "Loading...";
   if (image) {
     image.src = "";
+  }
+  if (content) {
+    content.innerHTML = "";
   }
   showThreads(backSearch);
   back.removeEventListener("click", threadBackClick);
@@ -40589,21 +40600,28 @@ function toggle() {
   }
 }
 
-function removeImage() {
+function removeContent() {
   document.querySelector(".post-image").src = "";
+  document.querySelector(".post-text").src = "";
 }
 
 function readComments() {
   if (speaking) {
-    msg.text = commentArray[0];
+    if (postText) {
+      msg.text = postText;
+      postText = "";
+    } else {
+      msg.text = commentArray[0];
+    }
     speechSynthesis.speak(msg);
+    commentArray = commentArray.slice(1);
     msg.onend = function () {
       let comments = document.querySelector(".comments");
-      if (comments) {
+      if (commentArray[0]) {
         comments.removeChild(comments.firstChild);
-        commentArray = commentArray.slice(1);
         readComments();
       } else {
+        comments.removeChild(comments.firstChild);
         let speakButton = document.querySelector(".fa");
         speakButton.classList.remove("fa-stop");
         speakButton.classList.add("fa-play");
@@ -40670,7 +40688,7 @@ function showThreads(subreddit) {
 
 function getSubreddit(e) {
   e.preventDefault();
-  removeImage();
+  removeContent();
   let title = document.querySelector(".title");
   title.innerHTML = "Loading...";
 
@@ -40680,28 +40698,6 @@ function getSubreddit(e) {
   let search = document.querySelector(".search").children[0];
   backSearch = search.value;
   showThreads(search.value);
-  // r.getSubreddit(search.value)
-  //   .getHot()
-  //   .then((response) => {
-  //     title.innerHTML = "🔥 Threads";
-  //     let postContent = document.querySelector(".post-content");
-  //     if (!document.querySelector(".back")) {
-  //       let backLink = document.createElement("p");
-  //       backLink.classList.add("back");
-  //       backLink.innerHTML = "⬅️ Back";
-  //       postContent.prepend(backLink);
-  //       backLink.addEventListener("click", showSubreddits);
-  //     }
-
-  //     for (let i = 0; i < response.length; i++) {
-  //       let link = document.createElement("p");
-  //       let linkText = document.createTextNode(response[i].title);
-  //       link.appendChild(linkText);
-  //       link.classList.add("thread");
-  //       threads.appendChild(link);
-  //       link.addEventListener("click", () => fetchComments(response[i]));
-  //     }
-  //   });
   search.value = "";
 }
 
