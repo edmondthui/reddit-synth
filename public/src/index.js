@@ -57,9 +57,10 @@ async function fetchComments(response) {
   if (content.media_metadata) {
     image = Object.values(content.media_metadata)[0].s.u;
   }
+
+  let postContent = document.querySelector(".post-text");
   if (content.selftext) {
     postText = content.selftext;
-    let postContent = document.querySelector(".post-text");
     postContent.classList.remove("hide");
     postContent.innerHTML = postText;
   }
