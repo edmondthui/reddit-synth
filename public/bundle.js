@@ -1,4 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+
+},{}],2:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -150,11 +152,9 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],2:[function(require,module,exports){
-
 },{}],3:[function(require,module,exports){
-arguments[4][2][0].apply(exports,arguments)
-},{"dup":2}],4:[function(require,module,exports){
+arguments[4][1][0].apply(exports,arguments)
+},{"dup":1}],4:[function(require,module,exports){
 (function (Buffer){(function (){
 /*!
  * The buffer module from node.js, for the browser.
@@ -1935,7 +1935,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"base64-js":1,"buffer":4,"ieee754":6}],5:[function(require,module,exports){
+},{"base64-js":2,"buffer":4,"ieee754":6}],5:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2386,52 +2386,31 @@ function unwrapListeners(arr) {
 
 function once(emitter, name) {
   return new Promise(function (resolve, reject) {
-    function errorListener(err) {
-      emitter.removeListener(name, resolver);
-      reject(err);
-    }
-
-    function resolver() {
-      if (typeof emitter.removeListener === 'function') {
+    function eventListener() {
+      if (errorListener !== undefined) {
         emitter.removeListener('error', errorListener);
       }
       resolve([].slice.call(arguments));
     };
+    var errorListener;
 
-    eventTargetAgnosticAddListener(emitter, name, resolver, { once: true });
+    // Adding an error listener is not optional because
+    // if an error is thrown on an event emitter we cannot
+    // guarantee that the actual event we are waiting will
+    // be fired. The result could be a silent way to create
+    // memory or file descriptor leaks, which is something
+    // we should avoid.
     if (name !== 'error') {
-      addErrorHandlerIfEventEmitter(emitter, errorListener, { once: true });
+      errorListener = function errorListener(err) {
+        emitter.removeListener(name, eventListener);
+        reject(err);
+      };
+
+      emitter.once('error', errorListener);
     }
+
+    emitter.once(name, eventListener);
   });
-}
-
-function addErrorHandlerIfEventEmitter(emitter, handler, flags) {
-  if (typeof emitter.on === 'function') {
-    eventTargetAgnosticAddListener(emitter, 'error', handler, flags);
-  }
-}
-
-function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
-  if (typeof emitter.on === 'function') {
-    if (flags.once) {
-      emitter.once(name, listener);
-    } else {
-      emitter.on(name, listener);
-    }
-  } else if (typeof emitter.addEventListener === 'function') {
-    // EventTarget does not have `error` event semantics like Node
-    // EventEmitters, we do not listen for `error` events here.
-    emitter.addEventListener(name, function wrapListener(arg) {
-      // IE does not have builtin `{ once: true }` support so we
-      // have to do it manually.
-      if (flags.once) {
-        emitter.removeEventListener(name, wrapListener);
-      }
-      listener(arg);
-    });
-  } else {
-    throw new TypeError('The "emitter" argument must be of type EventEmitter. Received type ' + typeof emitter);
-  }
 }
 
 },{}],6:[function(require,module,exports){
@@ -5621,7 +5600,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":16,"./_stream_duplex":17,"./internal/streams/async_iterator":22,"./internal/streams/buffer_list":23,"./internal/streams/destroy":24,"./internal/streams/from":26,"./internal/streams/state":28,"./internal/streams/stream":29,"_process":9,"buffer":4,"events":5,"inherits":7,"string_decoder/":30,"util":2}],20:[function(require,module,exports){
+},{"../errors":16,"./_stream_duplex":17,"./internal/streams/async_iterator":22,"./internal/streams/buffer_list":23,"./internal/streams/destroy":24,"./internal/streams/from":26,"./internal/streams/state":28,"./internal/streams/stream":29,"_process":9,"buffer":4,"events":5,"inherits":7,"string_decoder/":30,"util":3}],20:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -6944,7 +6923,7 @@ function () {
 
   return BufferList;
 }();
-},{"buffer":4,"util":2}],24:[function(require,module,exports){
+},{"buffer":4,"util":3}],24:[function(require,module,exports){
 (function (process){(function (){
 'use strict'; // undocumented cb() API, needed for core, not for public API
 
@@ -14418,7 +14397,7 @@ module.exports.config = config
 module.exports.parse = parse
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":9,"fs":3,"path":8}],40:[function(require,module,exports){
+},{"_process":9,"fs":1,"path":8}],40:[function(require,module,exports){
 'use strict';
 var handlers;
 
@@ -14506,7 +14485,7 @@ if (typeof Proxy !== 'undefined') {
 
 module.exports = wrap;
 
-},{"harmony-reflect":2}],41:[function(require,module,exports){
+},{"harmony-reflect":3}],41:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14912,7 +14891,7 @@ function defineInspectFunc(obj, inspectFunc) {
 function requiredArg(argName) {
   throw new TypeError("Missing required argument ".concat(argName));
 }
-},{"./constants.js":42,"./objects/More.js":50,"lodash":65,"util":2}],46:[function(require,module,exports){
+},{"./constants.js":42,"./objects/More.js":50,"lodash":65,"util":3}],46:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15342,7 +15321,7 @@ var Listing = class Listing extends Array {
 });
 var _default = Listing;
 exports.default = _default;
-},{"../Promise.js":41,"../errors.js":44,"../helpers.js":45,"./More.js":50,"lodash":65,"url":32,"util":2}],48:[function(require,module,exports){
+},{"../Promise.js":41,"../errors.js":44,"../helpers.js":45,"./More.js":50,"lodash":65,"url":32,"util":3}],48:[function(require,module,exports){
 (function (global){(function (){
 "use strict";
 
@@ -15775,7 +15754,7 @@ var LiveThread = class LiveThread extends _RedditContent.default {
 var _default = LiveThread;
 exports.default = _default;
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../helpers.js":45,"./RedditContent.js":53,"events":5,"ws":2}],49:[function(require,module,exports){
+},{"../helpers.js":45,"./RedditContent.js":53,"events":5,"ws":3}],49:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16692,7 +16671,7 @@ _constants.HTTP_VERBS.forEach(function (method) {
 
 var _default = RedditContent;
 exports.default = _default;
-},{"../Promise.js":41,"../constants.js":42,"../helpers.js":45,"./Listing.js":47,"lodash":65,"util":2}],54:[function(require,module,exports){
+},{"../Promise.js":41,"../constants.js":42,"../helpers.js":45,"./Listing.js":47,"lodash":65,"util":3}],54:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19527,7 +19506,7 @@ var Subreddit = class Subreddit extends _RedditContent.default {
 };
 var _default = Subreddit;
 exports.default = _default;
-},{"../Promise.js":41,"../errors.js":44,"../helpers.js":45,"./RedditContent.js":53,"fs":2,"lodash":65,"stream":15}],58:[function(require,module,exports){
+},{"../Promise.js":41,"../errors.js":44,"../helpers.js":45,"./RedditContent.js":53,"fs":3,"lodash":65,"stream":15}],58:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20586,7 +20565,7 @@ var rawRequest = typeof XMLHttpRequest !== 'undefined' ? require('./xhr') : requ
   gzip: true
 });
 exports.rawRequest = rawRequest;
-},{"./Promise.js":41,"./constants.js":42,"./errors.js":44,"./xhr":64,"lodash":65,"request-promise":2}],63:[function(require,module,exports){
+},{"./Promise.js":41,"./constants.js":42,"./errors.js":44,"./xhr":64,"lodash":65,"request-promise":3}],63:[function(require,module,exports){
 (function (global){(function (){
 "use strict";
 
@@ -23148,7 +23127,7 @@ if (!module.parent && _helpers.isBrowser) {
 
 module.exports = snoowrap;
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./Promise.js":41,"./constants.js":42,"./create_config.js":43,"./errors.js":44,"./helpers.js":45,"./objects/index.js":61,"./request_handler.js":62,"lodash":65,"promise-chains":40,"util":2}],64:[function(require,module,exports){
+},{"./Promise.js":41,"./constants.js":42,"./create_config.js":43,"./errors.js":44,"./helpers.js":45,"./objects/index.js":61,"./request_handler.js":62,"lodash":65,"promise-chains":40,"util":3}],64:[function(require,module,exports){
 "use strict";
 
 var _Promise = _interopRequireDefault(require("./Promise.js"));
@@ -40498,9 +40477,11 @@ async function fetchComments(response) {
   if (content.media_metadata) {
     image = Object.values(content.media_metadata)[0].s.u;
   }
+
+  let postContent = document.querySelector(".post-text");
   if (content.selftext) {
     postText = content.selftext;
-    let postContent = document.querySelector(".post-text");
+    postContent.classList.remove("hide");
     postContent.innerHTML = postText;
   }
   if (image) {
@@ -40527,6 +40508,7 @@ function threadBackClick() {
   }
   if (content) {
     content.innerHTML = "";
+    content.classList.add("hide");
   }
   showThreads(backSearch);
   back.removeEventListener("click", threadBackClick);
@@ -40602,6 +40584,7 @@ function toggle() {
 
 function removeContent() {
   document.querySelector(".post-image").src = "";
+  document.querySelector(".post-text").classList.add("hide");
   document.querySelector(".post-text").src = "";
 }
 
