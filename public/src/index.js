@@ -60,6 +60,7 @@ async function fetchComments(response) {
   if (content.selftext) {
     postText = content.selftext;
     let postContent = document.querySelector(".post-text");
+    postContent.classList.remove("hide");
     postContent.innerHTML = postText;
   }
   if (image) {
@@ -86,6 +87,7 @@ function threadBackClick() {
   }
   if (content) {
     content.innerHTML = "";
+    content.classList.add("hide");
   }
   showThreads(backSearch);
   back.removeEventListener("click", threadBackClick);
@@ -161,6 +163,7 @@ function toggle() {
 
 function removeContent() {
   document.querySelector(".post-image").src = "";
+  document.querySelector(".post-text").classList.add("hide");
   document.querySelector(".post-text").src = "";
 }
 

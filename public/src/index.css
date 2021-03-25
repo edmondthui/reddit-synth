@@ -181,3 +181,7 @@ body {
   border: 1px solid #edeff1;
   border-radius: 5px;
 }
+
+.hide {
+  display: none;
+}
