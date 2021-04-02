@@ -40461,6 +40461,8 @@ let defaultSubreddits = [
 
 async function fetchComments(response) {
   let title = response.title;
+  let threadTitle = document.querySelector(".title");
+  threadTitle.innerHTML = "Loading...";
   let image;
 
   let back = document.querySelector(".back");
@@ -40488,7 +40490,6 @@ async function fetchComments(response) {
     let postImage = document.querySelector(".post-image");
     postImage.src = image;
   }
-  let threadTitle = document.querySelector(".title");
   threadTitle.innerHTML = title;
 
   let comments = document.createElement("div");
@@ -40591,13 +40592,13 @@ function removeContent() {
 function readComments() {
   if (speaking) {
     if (postText) {
-      msg.text = postText;
+      msg.text = postText.replace(/\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/g,'');
       postText = "";
     } else {
-      msg.text = commentArray[0];
+      msg.text = commentArray[0].replace(/\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/g,'');
+      commentArray = commentArray.slice(1);
     }
     speechSynthesis.speak(msg);
-    commentArray = commentArray.slice(1);
     msg.onend = function () {
       let comments = document.querySelector(".comments");
       if (commentArray[0]) {
